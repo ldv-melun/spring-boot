@@ -1,0 +1,21 @@
+= Spring Boot
+Olivier Capuozzo; Frédéric Varni
+v1.2, 2021-01-12: Version asciidoc
+:description: Cours et TP autour de Spring Boot
+:icons: font
+:listing-caption: Listing
+:toc-title: Table des matières
+:toc:
+:toclevels: 2
+:source-highlighter: coderay
+ifdef::backend-pdf[]
+:title-logo-image: image:vinci.png[pdfwidth=4.25in,align=center]
+:source-highlighter: rouge
+endif::[]
+ifndef::backend-pdf[]
+:imagesdir: images
+endif::[]
+
+
+include::_ch00_intro.adoc[leveloffset=+1]
+include::_ch01_first_app.adoc[leveloffset=+1]

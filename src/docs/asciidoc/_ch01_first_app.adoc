@@ -1,0 +1,279 @@
+= Première application
+ifndef::backend-pdf[]
+:imagesdir: images
+endif::[]
+
+== Une première application Spring Boot
+
+=== Créer le projet
+
+Dans Spring Initializr effectuez les choix suivants :
+
+image::sbi-first.png[sbifirst.spring.io index]
+
+* Paramètres :
+** Project : Maven Project
+** Language : Java
+** Spring Boot version : 2.4.2
+** Métadonnées du projet :
+*** Group : fr.vincimelun
+*** Artifact : sbfirst
+*** Name : Spring Boot First
+*** Description : Première application Spring Boot
+*** Package name : fr.vincimelun.sbfirst
+*** Packaging : jar
+*** Java (JVM) version : 11
+* Dependencies :
+** Spring Boot DevTools
+** Spring Web
+** Apache Freemarker
+
+Spring Initilizr génére un fichier `.zip`, `sbfirst.zip`, qui contient le projet prêt à l'emploi.
+
+.Arborescence du projet `sbfirst`
+[literal%nowrap]
+----
+sbfirst
+├── .gitignore
+├── HELP.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml <1>
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── fr
+    │   │       └── vincimelun
+    │   │           └── sbfirst
+    │   │               └── SpringBootFirstApplication.java <2>
+    │   └── resources
+    │       ├── application.properties <3>
+    │       ├── static <4>
+    │       └── templates <5>
+    └── test
+        └── java
+            └── fr
+                └── vincimelun
+                    └── sbfirst
+                        └── SpringBootFirstApplicationTests.java
+----
+<1> Fichier `Maven` définissant le projet
+<2> L'application principale (fonction main)
+<3> Le fichier de configuration principal de l'application
+<4> Le dossier pour stocker les éléments fixes comme les images ou les feuilles de style css
+<5> Le dossier de stockage des templates Freemarker ou Thymeleaf
+
+
+La classe principale de l'application ressemble à celles qu'on peut écrire pour n'importe quelle application en mode ligne de commande : une fonction `main` statique qui permet d'instancier et de lancer l'application.
+
+.La classe principale de l'application
+[source,java]
+----
+package fr.vincimelun.sbfirst;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootFirstApplication {
+
+  public static void main(String[] args) { <1>
+   SpringApplication.run(SpringBootFirstApplication.class, args); <2>
+  }
+
+}
+----
+<1> Fonction `main` de l'application
+<2> Construction et lancement de l'application
+
+Le fichier `application.properties` est vide, il ne contiendra que les éléments particuliers à la configuration de l'application comme les informations de connexion aux bases de données, ou la configuration du moteur de templates. Par défaut tout doit fonctionner sur les `conventions`.
+
+=== Configurer le projet
+
+[source,properties]
+----
+spring.freemarker.template-loader-path= classpath:/templates
+spring.freemarker.suffix= .ftl
+----
+
+=== Un premier contrôleur
+
+Un contrôleur est une classe qui est annotée avec `@Controller` et qui contient des méthodes associées à des URI, ces methodes peuvent être associée à des annotations comme `@GetMapping`, `@PostMapping`, ... ou `@RequestMapping` plus générique. Les paramètres passés à ces méthodes sont variables et interprêtés par le moteur de Spring MVC.
+
+Par convention les contrôleurs sont créés dans le package `controller` de l'application
+
+.Un contrôleur simple
+[source,java]
+----
+package fr.vincimelun.sbfirst.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class MainController {
+
+    @GetMapping("/") <1>
+    public String index(){
+        return "index"; <2>
+    }
+}
+----
+<1> Route correspondant pour la méthode GET et l'URI `/`
+<2> Nom du template associé, sans l'extention `.ftl`
+
+
+.Un template simple sans modèle associé
+[source, injectedfreemarker]
+----
+<html>
+<body>
+<h1>Bienvenue dans votre première application Spring Boot</h1>
+
+</body>
+</html>
+----
+
+Pour passer des données au template associé à l'URI, il suffit de déclarer un objet de type `Model` dans les paramètres de la méthode. Attention cet objet est instancié par Spring, il n'y a qu'à l'utiliser. On peut considérer un objet de type `Model` comme un `Map`.
+
+.Exemple de gestion d'un objet `Model`
+[source, java]
+----
+    @GetMapping("/avecmodele")
+    public String withModel(Model model){ <1>
+        model.addAttribute("nom", "Lagaffe"); <2>
+        model.addAttribute("profession", "Touche à tout"); <3>
+        return "avecmodele"; <4>
+    }
+----
+<1> Injection d'un objet de type Model dans la méthode
+<2> Ajout de l'attribut `nom`
+<3> Ajout de l'attribut `profession`
+<4> Nom du template qui sera fusionné avec le `Model`
+
+
+Le template associé peut utiliser les objets `nom` et `profession` du `Model`
+
+.Template associé au `Model`
+[source,injectedfreemarker]
+----
+<html>
+<body>
+<h1>Avec des données passées au template</h1>
+Nom : ${nom} <br/>
+Profession : ${profession} <br/>
+</body>
+</html>
+----
+
+=== Gérer les données renvoyées par un formulaire HTML
+
+Pour récupérer les données d'un formulaire HTML ou utilise en paramètre un POJO annoté `@ModelAttribute` qui représente les données gérées par le formulaire. Par exemple si on souhaite récupérer des informations sur une personne représentée par son nom, son prénom et sa profession, il faut d'abord créer le POJO correspondant dans un package appelé `Model`
+
+.Le POJO `Personne`
+[source,java]
+----
+package fr.vincimelun.sbfirst.model;
+
+public class Person {
+    private String name;
+    private String givenName;
+    private String job;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+}
+----
+
+Ensuite il faut créer deux méthodes dans la classe `MainController` une pour afficher le formulaire et une pour récupérer les données du formulaire et les traîter (ici il s'agira juste de les afficher).
+
+[source,java, nul]
+----
+ @GetMapping("/personne") <1>
+ public String personFormDisplay(){
+   return "personform";
+ }
+
+  @PostMapping("/personne") <2>
+  public String personFormProcess(
+      @ModelAttribute(name="persondata") Person person, <3>
+      Model model) <4>
+  {
+   model.addAttribute("persondisplay", person); <5>
+   return "persondisplay";
+  }
+----
+<1> Méthode associée à l'URI `/personne` et à la méthode GET pour afficher le formulaire
+<2> Méhtode associée à l'URI `/personne` et à la méthode POST pour traiter le formulaire
+<3> L'objet associé au formulaire pour récupérer les données (voir l'explication sur le formulaire), le nom est celui de la valise `FORM` du formulaire HTML `persondata`
+<4> L'objet `person` récupéré du formulaire est passé en paramètre au template d'affichage du résultat sous le nom `persondisplay`
+
+Les templates associés sont les suivants
+
+.Formulaire de saisie : personform.ftl
+[source,html,num]
+----
+<html>
+<body>
+<h1>Fiche d'information</h1>
+<form action="/personne" method="post" name="persondata"> <1>
+    Nom : <input type="text" name="name"><br/> <2>
+    Prénom : <input type="text" name="givenName"><br/> <2>
+    Professtion : <input type="text" name="job"><br/> <2>
+    <input type="submit" value="Valider">
+</form>
+</body>
+</html>
+----
+<1> Le nom associé au formulaire doit être le même que celui du `@ModelAttribute` dans la méthode `personFormProcess`
+<2> Les noms des champs doivent être les mêmes que ceux de l'objet de type `Person` annoté par `@ModelAttribute`
+
+.Affichage des données
+[source, html, num]
+----
+<html>
+<body>
+<h1>Fiche personnelle</h1>
+<ul>
+    <li>Nom : ${persondisplay.name}</li>
+    <li>Prenom : ${persondisplay.givenName}</li>
+    <li>Profession : ${persondisplay.job}</li>
+</ul>
+</body>
+</html>
+----
+
+=== `HttpServletRequest` et `HttpServletResponse`
+
+Les objets `HttpServletRequest`, particulièrement utiles pour récupérer la session de l'utilisateur, et `HttpServletResponse` pour positionner les en-têtes HTTP sont toujours disponibles, il suffit de les déclarer en paramètre de la méthode contrôleur.
+
+== Exercices
+
+=== ToDo
+
+Reprendre l'exercice sur les ToDos du cours sur les servlets et l'adapter à Spring Boot. Pour cet exercice vous vous contenterez de créer une classe Controller nommée `ToDoController` que vous ajouterez au projet existant et qui gère l'URI `/todo`.
+
+=== NagiosCfg
+
+Reprendre l'exercice sur la génrération de fichiers de configuration Nagios et l'adapter à Spring Boot. Vous trouverez un corrigé version servlets en suivant le lien https://github.com/ocapuozzo/tomcat-switch-log . Pour cet exercice vous créerez un projet depuis `Spring Initializr`.
