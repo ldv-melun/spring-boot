@@ -1,0 +1,328 @@
+= Internationalisation
+
+ifndef::backend-pdf[]
+:imagesdir: images
+endif::[]
+
+== Présentation
+
+Dans un monde où l'interconnexion ne connait, bien souvent, aucune frontière,
+il est opportun, pour une application web à large public, de pouvoir
+adapter son IHM à la langue de ses utilisateurs.
+
+Les frameworks sont généralement outillés pour cela, est la solution s'intitule `internationalisation`,
+terme un peu long à écrire (18 caratères), c'est pour cela qu'il est
+le plus souvent noté `i18n`.
+
+
+== Identification de la langue de l'utilisateur
+
+Rappelons-le, l'utilisateur sollicite un service d'une application web par le biais d'une requête HTTP.
+Cette dernière embarque dans son entête certaines données (implicitement) telles que des informations
+sur le navigateur du client et sa langue (`Accept-Language`) :
+
+
+ifdef::backend-pdf[]
+image:http-request-lang.png[http-request-lang, 600]
+endif::[]
+
+ifndef::backend-pdf[]
+image:http-request-lang.png[http-request-lang]
+endif::[]
+
+La valeur de `Accept-Language` du client HTTP peut être exploitée par les applications web
+afin d'adapter le texte de la réponse à la langue
+de l'utilisateur.
+
+
+== Externalisation des messages
+
+On entend par message tout texte destiné à être présenté à l'utilisateur.
+
+Exemple de message non internationalisé :
+
+[source, html]
+----
+  <label th:for="${product.name}">Nom du produit :</label>
+----
+
+Le même exemple i18n :
+
+[source, html]
+----
+  <label th:for="${product.name}"
+         th:text="#{product.name}">Nom du produit</label>
+----
+
+Le contenu textuel du label (`Nom du produit`) dans cet exemple i18n n'est là que pour
+documenter le code source : il sera remplacé par la *valeur* associée à la *clé* `product.name` présente
+dans un fichier de ressource sélectionné par Spring (à défaut, c'est la clé elle-même qui sera rendue).
+Observez la syntaxe d'un message i18n avec thymeleaf : `#{clé}`
+
+Pour disposer d'une telle ressource, il suffit de créer un fichier `messages.properties`
+et autant d'autres fichiers `.properties` qu'il y a de langues couvertes par l'application,
+à partir du dossier `src/main/resources`. Exemple :
+
+----
+|-- pom.xml
+|-- src
+|   |-- main
+|   |   |-- java
+|   |   |   `...
+|   |   `-- resources
+|   |       |-- application.properties
+|   |       |-- i18n
+|   |       |   |-- messages.properties
+|   |       |   |-- messages_fr.properties
+|   |       |   |-- messages_us.properties
+|   |       |   |-- validationMessages.properties
+|   |       |   |-- validationMessages_fr.properties
+|   |       |   `-- validationMessages_us.properties
+|   |       |-- static
+|   |       |   |-- css
+|   |       |   |   |-- cinema.css
+|   |       |   |   `-- jumbotron.css
+|   |       |   `-- favicon.ico
+|   |       `-- templates
+|   |           |...
+|   |
+|   `...
+
+----
+TIP: par défaut, `messages.properties` est attendu à la racine du dossier `resources`
+
+Exemple de messages traduits :
+
+----
+# messages.properties
+site.title=My cinema
+reservationConfirmation=We have processed your reservation - thank you
+----
+
+[source]
+----
+# messages_fr.properties
+site.title=Mon cinema
+reservationConfirmation=Nous avons précédé à votre réservation - merci
+----
+
+== Configuration des chemins de messages
+
+Le dossier racine des messages, ainsi que leur préfixe, peuvent être paramétrés.
+Dans le but de centraliser les instructions de configurations, nous créons une classe
+dédiée qui expose des beans de configuration.
+
+[source, java]
+----
+package fr.laerce.cinema.config;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import java.util.Locale;
+... // autre imports
+
+
+@Configuration
+public class InternationalizationConfig extends WebMvcConfigurerAdapter {
+
+  /**
+   * This is where we'll add the interceptor object
+   * that handles internationalization
+   */
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(localeChangeInterceptor());
+  }
+
+  /**
+   * Set encoding and prefix file name of messages resources
+   * @return
+   */
+  @Bean
+  public MessageSource messageSource() {
+    ReloadableResourceBundleMessageSource messageSource =
+      new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:/i18n/messages"); <1>
+    messageSource.setDefaultEncoding("UTF-8"); <2>
+    return messageSource;
+  }
+
+  private MessageSource messageSourceValidator() {
+    ReloadableResourceBundleMessageSource messageSource =
+      new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:/i18n/validationMessages");
+    messageSource.setDefaultEncoding("UTF-8");
+    return messageSource;
+  }
+
+  @Bean
+  public LocalValidatorFactoryBean validator() {
+    LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+    bean.setValidationMessageSource(messageSourceValidator());
+    return bean;
+  }
+
+}
+
+----
+
+<1> Définit le sous-dossier et le préfixe des fichiers de messages (`messages` est le préfixe par défaut)
+<2> Encoder les messages en UTF-8 (attention à sélectionner également UTF-8 comme encodage par défaut des
+fichiers dans votre éditeur)
+
+
+Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées
+par l'application. Dans ce cas on configure le resolver de message afin de lui permettre
+de sélectionner un fichier de langue sur la base d'un paramètre (par convention c'est
+la variable `lang` qui est définie).
+
+On ajoutera à la classe `InternationalizationConfig` les beans de configuration suivants :
+
+[source, java]
+----
+  /**
+   * Instantiate the appropriate locale resolution strategy
+   *
+   * @return locale resolver
+   */
+  @Bean
+  public LocaleResolver localeResolver() {
+    // stores locale info in the session
+    SessionLocaleResolver resolver = new SessionLocaleResolver();
+
+    //default to US locale
+    resolver.setDefaultLocale(Locale.US);
+
+    return resolver;
+  }
+
+
+  /**
+   * This interceptor allows visitors to change the locale
+   *
+   * @return a LocaleChangeInterceptor object
+   */
+  @Bean
+  public LocaleChangeInterceptor localeChangeInterceptor() {
+    LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+
+    //the request param that we'll use to determine the locale
+    interceptor.setParamName("lang");
+
+    return interceptor;
+  }
+
+
+  /**
+   * This is where we'll add the interceptor object
+   * that handles internationalization
+   */
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(localeChangeInterceptor());
+  }
+
+----
+
+== Détection et changement de langue
+
+Nous avons vu que le choix de la langue (du fichier des messages) dépend de la configuration
+de l'application, dans les cas les plus courants ce choix est basé sur :
+
+* valeur de `Accept-Language` de l'entête HTTP (traitement
+par défaut, basé sur la configuration du client)
+
+* valeur de la variable `lang` (une valeur par défaut est définie côté serveur)
+
+TIP: Le fichier `messages.properties` est celui qui sera utilisé en cas d'absence de fichier de traduction de la langue demandée.
+
+== Format des messages
+
+Le format des messages est celui attendu
+par l' https://docs.oracle.com/javase/10/docs/api/java/text/MessageFormat.html[API MessageFormat].
+Ce sont des chaînes de caractères pouvant être paramétrées :
+
+
+[source, java]
+----
+// src/main/resources/i18n/messages.properties
+
+info.category.products =The category \"{1}\" contains {0} product(s)
+----
+
+Exemple d'un cas d'utilisation :
+
+[source, html]
+----
+// src/main/resources/templates/index/index.html
+
+  <h1 th:text="#{info.category.products(1234, 'sport')}"></h1>
+----
+
+Qui produira la sortie suivante :
+
+[source, html]
+----
+  <h1>The category "sport" contains 1234 product(s)</h1>
+----
+
+Plus vraisemblablement, le code aura une portée plus générale, comme ici :
+
+[source, html]
+----
+  <h1 th:text="#{info.category.products(${#lists.size(cat)}, ${cat.name})}"></h1>
+----
+
+TIP: `#lists.size` est une des méthodes bien pratique des objets _helper_ de thymeleaf. Ces objets gèrent les types de base (`String`, `List`, `Set`, etc.).
+Par exemple : `${#objects.nullSafe(obj,default)}`, mais aussi `URL`, `Message`....
+  https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects[voir la liste des helpers]
+
+== Messages en dehors de thymeleaf
+
+Bien entendu, le développeur fera usage des messages i18n
+sur l'ensemble de son projet, et pas seulement directement sur les vues.
+
+En effet, le système de validation fait un usage intensif de messages i18n.
+
+=== Dans la définition d'une annotation
+
+[source, java]
+----
+@Target({ ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = PersonConstraintValidator.class)
+@Documented
+public @interface PersonValidated {
+  String message() default "{person.bean.invalid}";
+  ...
+----
+
+=== Dans une classe de validation
+
+[source, java]
+----
+public void validate(Object obj, Errors e) {
+
+  Person p = (Person) obj;
+  // senior must have 2 adresses or more.
+  if (p.getAge() > 80 && p.getAddresses().size() < 2) {
+    e.rejectValue("addresses", "more.one.addresse.senior.citizen", "constraint senior addresses");
+  }
+}
+----
+
+=== Dans un objet métier
+
+[source, java]
+----
+public class Person{
+...
+  @Email(message = "{email_invalid_error_message}")
+  @NotNull(message = "{email_blank_error_essage}")
+  @Column(unique = true, nullable = false)
+  private String primaryEmail;
+...
+}
+---
+

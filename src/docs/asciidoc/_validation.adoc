@@ -1,0 +1,620 @@
+= Validation
+
+ifndef::backend-pdf[]
+:imagesdir: images
+endif::[]
+
+== Présentation
+
+Le contrôle de validité des *données d'entrée* est une tache obligée.
+En ce qui concerne les apllications web, on ne saurait être trop prudent : on ne peut supposer les intentions à l'origine d'une requête HTTP.
+
+Les données d'entrée concernées ici sont celles :
+
+* dans l'url (exemple `product/23` ou  `product?id=23`)
+* dans le corps de la requête HTTP (comme c'est le cas avec `post`)
+
+La validité de ces données peut être vérifiée à grand coup de if..else dans le corps
+des méthodes contrôleur. Cette façon risque fort d'introduire de la redondance de vérification
+et alourdira assurément le code.
+
+Comme toujours, la réponse consiste à déléguer le travail de validation à des services dédiés,
+en particulier via l'API Java Bean Validation.
+
+
+== Annotations de validation
+
+Bean Validation définit un métamodèle et une API pour la validation de JavaBean.
+Les métadonnées sont représentées par des *annotations* (https://jcp.org/en/jsr/detail?id=303[JSR-303 est la référence intiale])
+
+Bean Validation 2.0 est définie par JSR 380 (juillet 2017) et prend en compte les nouvelles caractéristiques de Java 8 (version minimum requise de Java)
+
+Hibernate propose une implémente de référence (http://hibernate.org/validator/[hibernate.org/validator]).
+
+L'usage des annotations permet facilement de lier, à un même élément, une à plusieurs contraintes, appelées aussi régles de validation (_validation rules_).
+
+.Table Annotations
+|===
+|Contrainte|Description
+|*@Null* *@NotNull* |L'élément annoté doit être *null* ou *différent de null*
+|*@AssertTrue  @AssertFalse*|L'élément annoté doit être *true* ou *false*
+|*@Min(value)* |L'élément annoté doit être un nombre dont la valeur est supérieure ou égale au minimum spécifié.
+|*@Max(value)* |L'élément annoté doit être un nombre dont la valeur est inférieure ou égale au maximum spécifié. Voir aussi *@DecimalMin*, *@DecimalMax*
+|*@Size(min=, max=)* |L'élément annoté doit être un nombre dont la valeur est dans les bornes spécifiées (inclusives)
+|*@Negative* |L'élément annoté doit être un nombre *strictement négatif* (zéro est considéré comme une valeur invalide). Voir aussi *@NegativeOrZero*, *@Positive*, *@PositiveOrZero*, *@Digits*
+|*@Future* |L'élément annoté doit être un instant, date ou time, dans le futur. Voir aussi *@Past*, *@PastOrPresent*, *@FutureOrPresent*
+|*@Pattern(regexp =)* |L'élément annoté doit être validé par l'expression régulière
+|*@NotEmpty*|L'élément annoté doit être non vide. Type supporté : `CharSequence`, `Collection`, `Map`, `array`
+|*@NotBlank*|L'élément annoté doit être non null et doit contenir au moins un caractère 'non-blanc'. Type supporté : `CharSequence`
+|*@Email*|L'élément annoté (String) doit être une adresse email bine-formée. |
+| | |
+|*@CreditCardNumber* |(hibernate) L'élément annoté représente un numéro de carte de credit. Vérifie selon l'implémentation de l'algorithme Luhn (qui traite de la syntaxe, non de la validité !)
+|===
+
+Voir une liste ici : https://beanvalidation.org/2.0/spec/#builtinconstraints/[table-builtin-constraints]
+
+== Validation des données de requêtes
+
+Les données sont celles passées dans l'url, comme par exemple la valeur `23` dans : _product?id=23_  ou _product/23_.
+
+[source, java]
+----
+@Validated
+@Controller
+@RequestMapping(value = "/person")
+public class PersonController {
+
+  @GetMapping("/validateMinNameParam")
+  public String validateMinNameParam(
+    @RequestParam("name") @Size(min=2) String name) {
+    // ...
+  }
+
+  @GetMapping("/validateMinName/{name}")
+  public String validateMinNamePathVariable(
+    @PathVariable("name") @Size(min=2) String name) {
+    // ...
+  }
+
+}
+----
+
+On prendra soin de déclarer l'annotation @Validated au niveau du contrôleur.
+
+Par défaut, une exception `ConstraintViolationException` sera déclenchée en cas de non respect de la contrainte sur le paramètre ou variable `name`.
+
+Remarque : Par la suite `@Validated` devra être retiré pour supprimer l'effet `ConstraintViolationException`.
+
+== Validation de niveau attributs de bean
+
+Lorsque les données sont transmises par `post`, ces données
+peuvent être affectées aux différents attributs d'un *bean* :
+la logique d'affectation est basée sur correspondance entre le nom
+de l'attribut (d'un setter) et la clé (la propriété _name_) de la valeur d'entrée.
+
+Pour réaliser cette tâche, Spring utilise les techniques de _data binding_ (JavaBeans Specifications) et
+des convertisseurs.
+
+Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `Person` pour être ensuite passé en argument du contrôleur (méthode).
+
+[source, java, n]
+----
+
+[...]
+
+@PostMapping("/add")
+ public String submit(@ModelAttribute Person person){
+   // ...
+   return "redirect:/person/list";
+ }
+
+[...]
+----
+
+Nous pouvons alors demander la validation du bean en question. footnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception]]
+Pour ce faire, nous pouvons associer, au niveau d'un attribut (_field_),
+des contraintes déclaratives (`JSR-380` d'aout 2017). Exemple :
+
+
+[source, java, n]
+----
+public class Person {
+
+  @NotBlank
+  @Size(min=2, max=30)
+  private String name;
+
+  @NotNull
+  @Min(value=18, message="{person.age.minor}") <1>
+  private Integer age;
+
+  @Size(min=1, max=3)
+  private List<@NotBlank(message="{person.address.notblank}") String> addresses; <2>
+----
+
+<1> La valeur du message peut être une clé i18n (comme ici) ou une constante littérale
+<2> Contrainte sur les éléments de la collection _addresses_
+
+La validation des contraintes doit être demandée.
+Pour ce faire, deux déclarations sont attendues :
+
+. placement de l'annotation *@Valid* sur le bean
+. déclaration d'un paramètre (injecteur) de type *BindingResult* qui portera les informations résultantes de la validation.
+
+[source, java, n]
+----
+
+[...]
+
+@PostMapping("/add")
+ public String submit(@Valid @ModelAttribute Person person, BindingResult result){
+   if (result.hasErrors()) {
+        return ... ;
+    }
+   // ...
+   return "redirect:/person/list";
+ }
+[...]
+----
+
+À noter que l'action de validation peut être réalisée manuellement dans le corps
+de la méthode contrôleur (il faut dans ce cas ne pas utiliser @Valid ni BindingResult).
+Un exemple ici : https://www.baeldung.com/javax-validation
+
+
+== Validation de niveau bean
+
+Les contraintes présentées jusqu'ici agissent au niveau de l'attribut.
+Pour des contraintes plus globales (cas de contraintes interdépendantes sur des attributs) on définira une *contrainte métier* au niveau de l'objet (de sa classe).
+
+Par leur nature très spécifique, ces contraintes doivent être programmées, leur classe doivent
+implémenter l'interface `org.springframework.validation.Validator`:
+
+
+[source, java, n]
+----
+public class PersonValidator implements Validator {
+
+  /**
+   * This Validator validates just Person instances
+   */
+  public boolean supports(Class clazz) {
+    return Person.class.equals(clazz); <1>
+  }
+
+  public void validate(Object obj, Errors e) {<2>
+    ValidationUtils.rejectIfEmpty(e, "name", "name.empty"); <3>
+
+    Person p = (Person) obj;
+    // senior must have 2 adresses or more.
+    if (p.getAge() > 80 && p.getAddresses().size() < 2) {
+      e.rejectValue("addresses", "more.one.addresse.senior.citizen", "constraint senior addresses"); <4>
+    }
+  }
+}
+----
+
+<1> Détermine la portée du validateur
+<2> Le premier argument est l'objet à valider, le deuxième représente le *BindingResult* (implémente `Errors`) qui sera passé au contrôleur
+<3> Une valeur 'empty' dans ce contexte signifie soit null soit chaine vide "". L'objet disposant de cet attribut ('name') n'a pas besoin d'être passé à cette méthode car l'objet `Errors` détient déjà une référence interne à l'objet cible.
+<4> La méthode `rejectValue` nous permet de déclarer une erreur liée à un attribut (https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/validation/Errors.html#rejectValue-java.lang.String-java.lang.String-[rejectValue API])
+
+
+ifdef::backend-pdf[]
+image:rejectValue-api.png[rejectValue-api, 600]
+endif::[]
+
+ifndef::backend-pdf[]
+image:rejectValue-api.png[rejectValue-api]
+endif::[]
+
+
+=== Activation dans un contrôleur
+
+Il existe plusieurs façons de faire, mais toutes sont dans un esprit de délégation.
+
+* par injection du validateur
+* via une annotation
+
+==== Par injection explicite
+
+On déclare le validateur en tant que composant via l'annotation `@Component`
+
+[source, java]
+----
+
+import org.springframework.validation.Validator;
+
+@Component
+public class PersonValidator implements Validator { ... }
+----
+
+Puis un injecteur (sur l'attribut) dans la classe contrôleur :
+
+[source, java, n]
+----
+
+@Controller
+@RequestMapping(value = "/person")
+public class PersonController {
+
+    @Autowired
+    PersonValidator personValidator;
+    ...
+----
+
+Que l'on utilise dans une méthode de ce contrôleur :
+
+[source, java, n]
+----
+
+@PostMapping("/add")
+public String submit(@ModelAttribute Person person, BindingResult result){ <1>
+
+  personValidator.validate(person, result); <2>
+
+  if (result.hasErrors()) { <3>
+    return "person/form";
+  }
+
+  personneDao.save(person);
+  return "redirect:/person/list";
+}
+----
+<1> Le paramètre `BindingResult` sert à stocker les différentes erreurs détectées par les validateurs.
+<2> Lance la logique de validation.
+<3> En façon simple de détecter la présence d'erreurs. Dans ce cas, on retourne à la vue du formulaire
+qui se chargera de présenter les erreurs à 'utilisateur (chapitre suivant)
+
+==== Par annotation
+
+Cette autre façon, assez élégante, consiste à définir une *annotation personnalisée*
+ et s'appuie non plus sur l'API de validation de spring mais sur l'API javax.validation, de concert avec la logique de l'annotation `@Valid`.
+
+Pour commencer on définiera 2 composants :
+
+* Le validateur (`PersonConstraintValidator`)
+* L'annotation associée (`PersonValidated`)
+
+Le validateur :
+
+
+[source, java, n]
+----
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+
+public class PersonConstraintValidator
+       implements ConstraintValidator<PersonValidated, Person> { <1>
+
+   public void initialize(PersonValidated constraint) { } <2>
+
+   public boolean isValid(Person p, ConstraintValidatorContext context) { <3>
+
+     // senior must have 2 adresses or more.
+     if (p.getAge() > 80 && p.getAddresses().size() < 2) {
+       return false;
+     }
+
+     return true;
+   }
+}
+----
+
+<1> L'interface est paramétrée par l'interface décrivant l'annotation personnalisée (que nous définissons juste après) et par le type de l'objet à valider.
+<2> Pour recevoir les valeurs éventuelles d'attributs associés à l'annotation (aucun ici)
+<3> Cette méthode est le centre d'appel des règles métier.
+
+Nous allons maintenant créer l'annotion que nous appelerons `PersonValidated` - (voir https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/package-summary.html[Annotation API]):
+
+[source, java, n]
+----
+package fr.laerce.cinema.annotation;
+
+import fr.laerce.cinema.validator.PersonValidator;
+
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
+
+@Target({ElementType.TYPE})  <1>
+@Retention(RetentionPolicy.RUNTIME) <2>
+@Constraint(validatedBy = PersonConstraintValidator.class) <3>
+@Documented <4>
+public @interface PersonValidated { <5>
+  String message() default "{person.senioraddresses.invalid}"; <6>
+  Class<?>[] groups() default {};
+  Class<? extends Payload>[] payload() default {};
+}
+----
+<1> La cible de la validation, ici c'est la classe qui est ciblée, sinon ce peut être un attribut (`FIELD`), un
+constructeur (`CONSTRUCTOR`) ... (classes, méthodes, attributs, paramètres, variables locales et packages : https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html[ElementType]).
+<2> La durée de vie (ici la plus longue)
+<3> Renseigne la classe d'implémentation de la validation
+<4> L'annotation fera partie de la documentation JavaDoc
+<5> Le nom de l'interface, qui sera le *nom de l'annotation*
+<6> Le message (ou la clé du message) utilisé en cas d'invalidation
+
+Nous pouvons maintenent utiliser l'annotation sur la classe métier :
+
+[source, java, n]
+----
+@PersonValidated <1>
+@Entity
+@Table(name = "persons")
+public class Person {
+  ...
+}
+----
+
+<1> Placement de notre annotation `PersonValidated` (de portée glogale à la classe `Person`), qui s'ajoute aux autres.
+
+L'activation des opérations de validation se déclare, là où on en a besoin, par la présence de l'annotation `@Valid`, par exemple ici dans une méthode contrôleur.
+[source, java, n]
+----
+
+@PostMapping("/add")
+public String submit(@Valid @ModelAttribute Person person, BindingResult result){ <1><2>
+
+  if (result.hasErrors()) { <3>
+    return "person/form";
+  }
+
+  personneDao.save(person);
+  return "redirect:/person/list";
+}
+----
+
+<1> On remarquera l'annotation `@Valid` placée avant et sur le paramètre `Person`
+<2> Suivi de `BindingResult` qui détiendra le résultat des opérations de validations (l'absence de ce paramètre entrainera une erreur)
+<3> Même logique que précédemment
+
+
+== Montrer les erreurs (logique de présentation)
+
+Nous nous placons dans le cas d'une logique de présentation déportée à _thymeleaf_.
+
+
+////
+
+=== Configuration UTF-8 des messages
+
+Le bon traitement de l'encodage UTF-8 des messages nous oblige à configurer notre application.
+
+Cette configuration se réalise par l'intermédiaire de *beans*, que nous déclarons dans
+la classe principale (le lanceur de l'application)
+
+[source, java, n]
+----
+ ...
+
+  @Bean
+  public MessageSource messageSource() {
+    ReloadableResourceBundleMessageSource messageSource =
+       new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:/locale/messages"); <1>
+    messageSource.setDefaultEncoding("UTF-8");<2>
+    return messageSource;
+  }
+
+  public MessageSource messageSourceValidation() {
+    ReloadableResourceBundleMessageSource messageSource =
+       new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:/locale/validationMessages"); <3>
+    messageSource.setDefaultEncoding("UTF-8");
+    return messageSource;
+  }
+
+  @Bean
+  public LocalValidatorFactoryBean validator() {
+    LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+    bean.setValidationMessageSource(messageSourceValidation()); <4>
+    return bean;
+  }
+
+----
+<1> Définir le préfixe des fichiers des messages locaux
+<2> Définit l'encodage général des messages
+<3> Définir le préfixe des fichiers des messages d'erreurs
+<4> Applique la configuration au bean validator
+
+////
+
+=== Logiques de présentation des erreurs
+
+On se place dans le cas où un utilisateur soumet un formulaire. Côté serveur, la validation peut révèler des erreurs
+ d'entrée, suite par exemple à un non respect des consignes communiquées à l'utilisateur.
+
+Le scénario classique consiste alors à retourner le formulaire à l'utilisateur en
+lui soulignant les points posant problème.
+
+* Agir sur la classe CSS
+
+L'idée consiste, en cas d'erreurs, à ajouter une classe CSS aux classes de l'élément :
+
+[source, html]
+----
+<input type="text" th:field="*{age}" class="small" th:errorclass="fieldError" />
+----
+
+Si l'age (attribut de l'objet liée au formulaire) n'est pas validé (par exemple on attend un age >= 18 alors que l'utilisateur a rentré 12), alors la sortie
+ sera de cette forme :
+
+[source, html]
+----
+<input type="text" id="age" name="age" value="12" class="small fieldError" />
+----
+
+
+* Agir l'ajout d'un message d'erreur
+
+L'idée consiste à ajouter un élément HTML près de celui qui pose problème.
+Dans cet exemple on ajoute, sous condition d'erreurs, un élément paragraphe `p`.
+
+[source, html]
+----
+<input type="text" th:field="*{age}" />
+<p th:if="${#fields.hasErrors('age')}"
+   class="fielderr" th:errors="*{age}">Incorrect date</p>
+----
+
+On remarquera l'usage de :
+
+* `th:if` qui conditionne l'insertion du paragraphe
+* `th:errors` (au pluriel) afin d'obtenir *tous* les messages d'erreurs liés à l'attribut `age`.
+
+On se refera à
+https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#validation-and-error-messages[th : validation-and-error-messages]
+
+à titre d'exemple :
+
+[source, java, n]
+----
+package fr.laerce.cinema.annotation;
+
+import fr.laerce.cinema.validator.PersonValidator;
+
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
+
+@Target({ ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = PersonConstraintValidator.class)
+@Documented
+public @interface PersonValidated {
+  String message() default "{person.bean.invalid}";
+  Class<?>[] groups() default {};
+  Class<? extends Payload>[] payload() default {};
+}
+
+...
+
+public class PersonConstraintValidator
+  implements ConstraintValidator<PersonValidated, Person> {
+
+  public void initialize(PersonValidated constraint) {
+
+  }
+
+  public boolean isValid(Person p, ConstraintValidatorContext context) {
+
+    if (p.getSurname() == null || p.getSurname().isEmpty())
+       return false;
+
+     if (p.getBirthYear() == null || p.getBirthYear() < 0) {
+       return false;
+     }
+
+     return true;
+   }
+}
+----
+
+[source, html]
+----
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+<div th:replace="fragments/header :: menu(activeTab='actors')"/>
+
+<main role="main">
+  <div class="jumbotron">
+    <div class="container">
+      <h5 class="display-5"
+         th:text="${person.id} ?
+          #{form.person.update} :
+          #{form.person.add}">Person</h5>
+
+      <div th:if="${#fields.hasErrors('${person.*}')}">
+        <ul>
+          <li th:each="e : ${#fields.detailedErrors('${person.*}')}"
+              th:class="${e.global}? globalerr : fielderr">
+            <span th:text="${e.global}? '*' : ${e.fieldName}"> * or field</span> |
+            <span th:text="${e.message}">The error message</span>
+          </li>
+        </ul>
+      </div>
+
+      <form action="#" th:action="@{/person/add}"
+            th:object="${person}" enctype="multipart/form-data"
+            method="post">
+
+        <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" th:field="*{imagePath}"/>
+
+        <div class="form-group">
+          <label th:text="#{form.givenname}">First name</label>
+          <input type="text" class="form-control"
+                 aria-describedby="givennameHelp"
+                 th:attr="placeholder=#{form.givenname}"
+                 th:field="*{givenname}"/>
+          <p th:if="${#fields.hasErrors('givenname')}"
+             th:errors="*{givenname}" class="fielderr">Incorrect
+            givename</p>
+        </div>
+
+        <div class="form-group">
+
+          <input type="text" class="form-control"
+                 aria-describedby="surnameHelp"
+                 th:attr="placeholder=#{form.surname}"
+                 th:field="*{surname}"/>
+          <p th:if="${#fields.hasErrors('surname')}"
+             th:errors="*{surname}" class="fielderr">Incorrect
+            surname</p>
+        </div>
+        <div class="form-group">
+          <label th:text="#{form.birthyear}">Annee de naissance</label>
+          <input type="text" class="form-control"
+                 aria-describedby="birthYearHelp"
+                 th:attr="placeholder=#{form.birthyear}"
+                 th:field="*{birthYear}"/>
+          <p th:if="${#fields.hasErrors('birthYear')}"
+             th:errors="*{birthYear}" class="fielderr">Incorrect date</p>
+        </div>
+
+        <div class="form-group">
+          <label th:text="#{form.person.picture}">file input</label>
+          <p><input type="file" class="form-control-file" name="photo"/>
+            <span th:text="*{imagePath}">Fichier photo</span>
+          </p>
+        </div>
+
+        <div th:if="${person.id}" class="card"
+            style="width: 15rem;  margin-top: 2px; margin-bottom: 2px;">
+          <img class="image-rounded img-fluid" type="width:100%"
+               th:src="@{'/person/imagename/'+${person.imagePath}}"/>
+          <div class="card-body">
+            <p class="card-text"
+               th:text="${person.givenname + ' ' +person.surname}"></p>
+          </div>
+        </div>
+        <button type="submit" th:text="#{form.submit}"
+           class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</main>
+<div th:replace="fragments/footer.html :: footer"/>
+</body>
+</html>
+----
+
+Et une interprétation du code résultant par le navigateur :
+
+
+ifdef::backend-pdf[]
+image:cinema-error-ui.png[cinema-error-ui, 500]
+endif::[]
+
+ifndef::backend-pdf[]
+image:cinema-error-ui.png[cinema-error-ui]
+endif::[]
+
+
+Remarque : le validateur est utilisé pour déterminer la validité de l'année de naissance à titre d'exemple (pourrait être délégué à une annotation dans le cas d'une logique simple de contrôle)
