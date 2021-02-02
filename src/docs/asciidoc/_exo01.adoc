@@ -1,0 +1,49 @@
+= Freemarker au Cinéma
+ifndef::backend-pdf[]
+:imagesdir: images
+endif::[]
+
+== Présentation
+
+Cet exercice s'appuie sur le projet Spring Boot `link:projets/cinema.zip[cinema]`, il s'agit d'afficher dans un premier temps les films disponibles au catalogue avec un rendu proche de celui-ci pour la page d'accueil :
+
+image:cineftl_01.png[ecran_cinema, 600]
+
+Le modèle de données associé au projet est le suivant :
+
+[plantuml]
+-----
+left to right direction
+Object Personne {
+nom: String
+prenom: String
+anneeNaissance: int
+photo: String
+}
+
+Object Film {
+titre: String
+note: float
+afficheNom: String
+resume: String
+}
+
+Object Role{
+name: String
+}
+
+Role --* Film
+Personne *-- Role : joue
+
+Personne -- Film : réalise
+-----
+
+Le `Service` CinemaDataSource fournit la liste des films disponibles, ou celle des personnes (acteurs ou réalisateurs).
+
+En cliquant sur un film, l'utilisateur accède aux détails du film : le réalisateur et la liste des acteurs principaux avec leur rôle dans le film, pour chaque personne une photo est affichée.
+
+Les affiches des films sont fournies dans le dossier `resources/static/images/affiches`, les photos des personnes sont fournies dans le dossier `resources/static/images/photos`.
+
+Le projet Sping Boot est configuré pour utiliser les templates Freemarker, la source de données est à votre disposition ainsi que les classes du modèle. Il vous reste à créer les contrôleurs et les templates Freemarker qui assurent l'affichage et le fonctionnement de l'application.
+
+Une fois l'affichage des films et de leur détail réalisé, essayez de réfléchir à la mise en oeuvre d'un système de notation des films ouvert à chaque visiteur du site, mais qui empêche un visiteur donné de voter deux fois.
