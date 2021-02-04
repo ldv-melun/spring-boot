@@ -23,7 +23,7 @@ photo: String
 
 Object Film {
 titre: String
-/note: float
+note: float
 afficheNom: String
 resume: String
 }
@@ -38,6 +38,15 @@ Personne "1\t\t\nrealisateur" -- " *     " Film
 
 -----
 ////
+
+
+Object Film {
+titre: String
+/note: float
+afficheNom: String
+resume: String
+}
+
 Object Vote{
 like: boolean
 }
