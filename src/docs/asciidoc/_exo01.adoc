@@ -23,7 +23,7 @@ photo: String
 
 Object Film {
 titre: String
-note: float
+/note: float
 afficheNom: String
 resume: String
 }
@@ -32,11 +32,21 @@ Object Role{
 name: String
 }
 
-Role --* Film
-Personne *-- Role : joue
+Role "*" --*"1" Film:"\t"
+Personne "1\t\n acteur" *--"*" Role :"\t\t"
+Personne "1\t\t\nrealisateur" -- " *     " Film
 
-Personne -- Film : réalise
 -----
+////
+Object Vote{
+like: boolean
+}
+
+Role "*" --*"1" Film:"\t"
+Personne "1\t\n acteur" *--"*" Role :"\t\t"
+Personne "1\t\t\nrealisateur" -- " *     " Film
+Film "1"- "*" Vote :"\n\n"
+////
 
 Le `Service` CinemaDataSource fournit la liste des films disponibles, ou celle des personnes (acteurs ou réalisateurs).
 
