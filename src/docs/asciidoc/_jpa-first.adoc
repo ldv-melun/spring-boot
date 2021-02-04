@@ -1,0 +1,249 @@
+= Introduction à JPA
+Olivier Capuozzo; Frédéric Varni
+v1.0, 2018-12-15: Version asciidoc
+:description: Découvrir JPA
+:icons: font
+:listing-caption: Listing
+:toc-title: Table des matières
+:toc:
+:toclevels: 2
+:source-highlighter: coderay
+ifdef::backend-pdf[]
+:title-logo-image: image:laerce.png[pdfwidth=4.25in,align=center]
+:source-highlighter: rouge
+endif::[]
+
+== Présentation
+
+JPA est une interface de programmation permettant d'utiliser un modèle objet
+au-dessus d'une base de données relationnelle.
+
+JPA associe un graphe de classes Java aux tables d'une base de données
+relationnelle par le biais :
+
+* de fichiers de configuration xml
+* d'annotations depuis Java 5 (c'est la méthode préférée)
+
+Pour la suite nous utiliserons le modèle suivant :
+
+.Modèle du domaine
+[plantuml]
+----
+left to right direction
+
+Object Film{
+id
+title
+releaseDate
+summary
+rating
+imagePath
+}
+Object Person{
+id
+surname
+givenname
+birthday
+imagePath
+}
+Object Play <<association>> {
+rank
+name
+}
+Object Genre {
+id
+name
+}
+Object User{
+id
+surname
+givenname
+login
+password
+}
+Object Review <<association>>{
+id
+article
+datte
+}
+
+User "1" --- "*" Review
+Film "1" --- "*" Review
+Genre "*" -- "*" Film
+Film "*" --- "director 1" Person :"  "
+Film "1" --- "*" Play
+Person "1" --- "*" Play
+----
+
+Ainsi que la base de données correspondante :
+
+.Script SQL de la base cinema
+[source,sql]
+----
+CREATE TABLE PERSONS
+(
+    ID BIGSERIAL PRIMARY KEY NOT NULL,
+    SURNAME VARCHAR(60) NOT NULL,
+    GIVENNAME VARCHAR(40),
+    BIRTH_YEAR INTEGER,
+    IMAGE_PATH VARCHAR(80)
+);
+
+CREATE TABLE FILMS
+(
+    ID BIGSERIAL PRIMARY KEY NOT NULL,
+    TITLE VARCHAR(50),
+    RATING DECIMAL(2,1),
+    IMAGE_PATH VARCHAR(120),
+    SUMMARY TEXT,
+    FILM_DIRECTOR BIGINT,
+    CONSTRAINT FILMS_PERSONS_ID_FK FOREIGN KEY (FILM_DIRECTOR) REFERENCES PERSONS (ID)
+);
+
+CREATE TABLE PLAY
+(
+    PERSON_ID BIGINT NOT NULL,
+    FILM_ID BIGINT NOT NULL,
+    RANK INTEGER NOT NULL,
+    NAME VARCHAR(90),
+    CONSTRAINT PLAY_PERSON_ID_FILM_ID_PK PRIMARY KEY (PERSON_ID, FILM_ID),
+    CONSTRAINT PLAY___FK_PERSON FOREIGN KEY (PERSON_ID)
+        REFERENCES PERSONS (ID) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT PLAY_FILMS_ID_FK FOREIGN KEY (FILM_ID)
+        REFERENCES FILMS (ID)
+);
+
+
+----
+
+== Associer une table à une classe
+
+.Classe Person associée à la table PERSONS sans référence aux autres tables
+[source,java]
+----
+package fr.laerce.cinema.model;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity <1>
+@Table(name = "persons") <2>
+public class Person {
+    private long id;
+    private String surname;
+    private String givenname;
+    private Integer birthYear;
+    private String imagePath;
+
+    @Id <3>
+    @GeneratedValue(strategy = GenerationType.IDENTITY) <4>
+    @Column(name = "id", nullable = false) <5>
+    public long getId() {  <6>
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Basic <7>
+    @Column(name = "surname", nullable = false, length = 60)
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    @Basic
+    @Column(name = "givenname", nullable = true, length = 40)
+    public String getGivenname() {
+        return givenname;
+    }
+
+    public void setGivenname(String givenname) {
+        this.givenname = givenname;
+    }
+
+    @Basic
+    @Column(name = "birth_year", nullable = true)
+    public Integer getBirthYear() {
+        return birthYear;
+    }
+
+    public void setBirthYear(Integer birthYear) {
+        this.birthYear = birthYear;
+    }
+
+    @Basic
+    @Column(name = "image_path", nullable = true, length = 80)
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Person persons = (Person) o;
+
+        if (id != persons.id) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id=" + id +
+                ", nom='" + surname + '\'' +
+                ", prenom='" + givenname + '\'' +
+                ", naissance=" + birthYear +
+                ", photoPath='" + imagePath + '\'' +
+                '}';
+    }
+}
+----
+
+<1> `@Entity` déclare la classe comme un objet persistant
+associé par défaut à la table de même nom (à la casse près).
+<2> `@Table` déclare le nom de la table associée à la classe, indispensable
+si les deux noms diffèrent comme c'est le cas ici.
+<3> `@Id` déclare l'attibut comme clé primaire, au moins un attribut doit
+être marqué par cette annotation
+<4> `@GeneratedValue` indique que la valeur est générée automatiquement
+par le SGBD
+<5> `@Column` permet d'établir la correspondance entre la propriété de la classe
+et la colonne de la table, ainsi que certaines règles de validation commme
+l'interdiction de nullité, la longueur, le type...
+<6> Le getter associé à la propriété, l'annotation se fait soit sur les
+getters, soit sur les attributs, mais on ne mélange pas les styles
+<7> `@Basic` désigne une propriété associée à un type de base.
+
+== Gérer les associations un vers plusieurs (`ManyToOne` et `OneToMany`)
+
+Dans l'exemple suivant un élève appartient à une division et une seule alors qu'une
+division peut contenir plusieurs élèves.
+
+
+
+La relation Eleve vers Division est de type `ManyToOne`, la relation Division vers
+Eleve est de type `OneToMany`
+
+Le mapping de l'entité élève peut
+
+== Les clés composées
+
+== Les associations plusieurs vers plusieurs (`ManyToMany`)

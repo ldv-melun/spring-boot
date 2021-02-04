@@ -1,0 +1,21 @@
+= Les DAO à la façon Spring
+Olivier Capuozzo; Frédéric Varni
+v1.0, 2018-12-15: Version asciidoc
+:description: JPA repositories
+:icons: font
+:listing-caption: Listing
+:toc-title: Table des matières
+:toc:
+:toclevels: 2
+:source-highlighter: coderay
+ifdef::backend-pdf[]
+:title-logo-image: image:laerce.png[pdfwidth=4.25in,align=center]
+:source-highlighter: rouge
+endif::[]
+
+== Présentation
+Créer des DAO est une tâche répétitive et ingrate, 90% du code est
+similaire d'un DAO à l'autre. Spring propose une méthode standard pour
+gérer les DAO au travers d'objets, ou plutôt d'interfaces, de type
+`CrudRepository`.
+
