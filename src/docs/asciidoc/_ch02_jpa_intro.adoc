@@ -17,40 +17,44 @@ relationnelle par le biais :
 
 Pour la suite nous utiliserons le modèle suivant :
 
-.Modèle du domaine
+.Modèle d'analyse du domaine
 [plantuml]
 ----
 left to right direction
 
 Object Film{
 id
-title
-releaseDate
-summary
-rating
-imagePath
+titre
+dateRealisation
+resume
+note
+affiche
 }
-Object Person{
+Object Personne{
 id
-surname
-givenname
-birthday
-imagePath
+nom
+prenom
+anneeNaissance
+photo
 }
-Object Play <<association>> {
+
+Object Role {
 id
 rank
 name
 }
 
-Film "*" --- "director 1" Person :"  "
-Film "1..*" --- "0..*" Person
-(Person, Film) "1" ... "*" Play
+Film "*" --- "director 1" Personne :"  "
+Film "1" *- "*" Role
+Personne "1       \nacteur" *- "*" Role:"\n\n"
+
 ----
 
 Dans ce modèle un acteur peut avoir plusieurs rôles dans un film, ce n'est pa courant, mais ça arrive : dans "Docteur Folamour" Peter Sellers joue à la fois Colonel Lionel Mandrake, Président Merkin Muffley et Docteur Folamour.
 
-La base de données suivante supporte le Modèle, le schéma est défini dans le dialecte H2  :
+Parfois, la base de données préexiste à l'application à développer.
+
+Par exemple, voici un schéma d'une base de données, défini dans le dialecte H2, en phase avec le modèle d'analyse :
 
 .Script SQL de la base cinema
 [source,sql]
@@ -72,7 +76,8 @@ CREATE TABLE FILMS
     IMAGE_PATH VARCHAR(120),
     SUMMARY CLOB,
     FILM_DIRECTOR BIGINT,
-    CONSTRAINT FILMS_PERSONS_ID_FK FOREIGN KEY (FILM_DIRECTOR) REFERENCES PERSONS (ID)
+    CONSTRAINT FILMS_PERSONS_ID_FK FOREIGN KEY (FILM_DIRECTOR)
+        REFERENCES PERSONS (ID)
 );
 
 CREATE TABLE PLAY
@@ -82,17 +87,25 @@ CREATE TABLE PLAY
     FILM_ID BIGINT NOT NULL,
     RANK INTEGER NOT NULL,
     NAME VARCHAR(90),
-    CONSTRAINT PLAY___FK_PERSON FOREIGN KEY (PERSON_ID) REFERENCES PERSONS (ID) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT PLAY_FILMS_ID_FK FOREIGN KEY (FILM_ID) REFERENCES FILMS (ID)
+    CONSTRAINT PLAY___FK_PERSON FOREIGN KEY (PERSON_ID)
+        REFERENCES PERSONS (ID) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT PLAY_FILMS_ID_FK FOREIGN KEY (FILM_ID)
+        REFERENCES FILMS (ID)
 );
 ----
 
 Une application JPA se divise en deux parties :
 
 - Définir le modèle de données (graphe d'objets)
-- Gérer l'accès aux données (récupérer et modifier les données)
+- Gérer l'accès aux données (créer, récupérer, modifier et supprimer les données)
 
 == Définir le modèle
+
+=== Une traduction de l'analyse
+
+Le modèle qui nous intéresse ici est celui centré sur la logique métier du client, les données qu'ils manipulent. Ces données sont regroupées en *entités*, qui, dans le code, sont représentées par des *classes*, dites *métier*, parfois stéréotypées \<<entity>> dans les diagrammes d'analyse.
+
+TIP: Il est fort pratique de représenter l'analyse sous la forme d'un diagramme de classes UML, car, en conception (design), l'analyse permet au développeur de se consacrer sur les détails des entités sans perdre le fil de leurs relations.
 
 === Associer une table à une classe, les entités (entities)
 
