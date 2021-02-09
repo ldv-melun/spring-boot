@@ -524,9 +524,13 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table des matières</div>
 <ul class="sectlevel1">
-<li><a href="#freemarker-au-cinéma">Freemarker au Cinéma</a>
+<li><a href="#introduction-à-jpa">Introduction à JPA</a>
 <ul class="sectlevel2">
 <li><a href="#présentation">Présentation</a></li>
+<li><a href="#définir-le-modèle">Définir le modèle</a></li>
+<li><a href="#gérer-l-accès-aux-données-les-dépôts-repositories">Gérer l&#8217;accès aux données, les dépôts (repositories)</a></li>
+<li><a href="#configurer-un-projet-spring-boot-pour-utiliser-jpa">Configurer un projet Spring Boot pour utiliser JPA</a></li>
+<li><a href="#travail-à-faire">Travail à faire</a></li>
 </ul>
 </li>
 </ul>
@@ -534,38 +538,498 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="freemarker-au-cinéma"><a class="anchor" href="#freemarker-au-cinéma"></a>Freemarker au Cinéma</h2>
+<h2 id="introduction-à-jpa"><a class="anchor" href="#introduction-à-jpa"></a>Introduction à JPA</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="présentation"><a class="anchor" href="#présentation"></a>Présentation</h3>
 <div class="paragraph">
-<p>Cet exercice s&#8217;appuie sur le projet Spring Boot <code><a href="projets/cinema.zip">cinema</a></code>, il s&#8217;agit d&#8217;afficher dans un premier temps les films disponibles au catalogue avec un rendu proche de celui-ci pour la page d&#8217;accueil :</p>
+<p>JPA est une interface de programmation permettant d&#8217;utiliser un modèle objet
+au-dessus d&#8217;une base de données relationnelle.</p>
 </div>
 <div class="paragraph">
-<p><span class="image"><img src="images/cineftl_01.png" alt="ecran_cinema" width="600"></span></p>
+<p>JPA associe un graphe de classes Java aux tables d&#8217;une base de données
+relationnelle par le biais :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>de fichiers de configuration xml</p>
+</li>
+<li>
+<p>d&#8217;annotations depuis Java 5 (c&#8217;est la méthode préférée)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Le modèle de données associé au projet est le suivant :</p>
+<p>Pour la suite nous utiliserons le modèle suivant :</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-29c5b0ccbf4cbe74e0b6b214372ce451.png" alt="diag 29c5b0ccbf4cbe74e0b6b214372ce451" width="452" height="119">
+<img src="images/diag-3701ea765bfcbf691c78eb180d76be9d.png" alt="Modèle du domaine" width="484" height="234">
+</div>
+<div class="title">Figure 1. Modèle du domaine</div>
+</div>
+<div class="paragraph">
+<p>Dans ce modèle un acteur peut avoir plusieurs rôles dans un film, ce n&#8217;est pa courant, mais ça arrive : dans "Docteur Folamour" Peter Sellers joue à la fois Colonel Lionel Mandrake, Président Merkin Muffley et Docteur Folamour.</p>
+</div>
+<div class="paragraph">
+<p>La base de données suivante supporte le Modèle, le schéma est défini dans le dialecte H2  :</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 1. Script SQL de la base cinema</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="sql"><span class="class">CREATE</span> <span class="type">TABLE</span> PERSONS
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    SURNAME <span class="predefined-type">VARCHAR</span>(<span class="integer">60</span>) <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    GIVENNAME <span class="predefined-type">VARCHAR</span>(<span class="integer">40</span>),
+    BIRTH_YEAR <span class="predefined-type">INTEGER</span>,
+    IMAGE_PATH <span class="predefined-type">VARCHAR</span>(<span class="integer">80</span>)
+);
+
+<span class="class">CREATE</span> <span class="type">TABLE</span> FILMS
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    TITLE <span class="predefined-type">VARCHAR</span>(<span class="integer">50</span>),
+    RATING <span class="predefined-type">DECIMAL</span>(<span class="integer">2</span>,<span class="integer">1</span>),
+    IMAGE_PATH <span class="predefined-type">VARCHAR</span>(<span class="integer">120</span>),
+    SUMMARY CLOB,
+    FILM_DIRECTOR <span class="predefined-type">BIGINT</span>,
+    <span class="type">CONSTRAINT</span> FILMS_PERSONS_ID_FK <span class="directive">FOREIGN</span> <span class="type">KEY</span> (FILM_DIRECTOR) <span class="keyword">REFERENCES</span> PERSONS (ID)
+);
+
+<span class="class">CREATE</span> <span class="type">TABLE</span> PLAY
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    PERSON_ID <span class="predefined-type">BIGINT</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    FILM_ID <span class="predefined-type">BIGINT</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    RANK <span class="predefined-type">INTEGER</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    NAME <span class="predefined-type">VARCHAR</span>(<span class="integer">90</span>),
+    <span class="type">CONSTRAINT</span> PLAY___FK_PERSON <span class="directive">FOREIGN</span> <span class="type">KEY</span> (PERSON_ID) <span class="keyword">REFERENCES</span> PERSONS (ID) <span class="keyword">ON</span> <span class="class">DELETE</span> <span class="directive">CASCADE</span> <span class="keyword">ON</span> <span class="class">UPDATE</span> <span class="directive">CASCADE</span>,
+    <span class="type">CONSTRAINT</span> PLAY_FILMS_ID_FK <span class="directive">FOREIGN</span> <span class="type">KEY</span> (FILM_ID) <span class="keyword">REFERENCES</span> FILMS (ID)
+);</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Le <code>Service</code> CinemaDataSource fournit la liste des films disponibles, ou celle des personnes (acteurs ou réalisateurs).</p>
+<p>Une application JPA se divise en deux parties :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Définir le modèle de données (graphe d&#8217;objets)</p>
+</li>
+<li>
+<p>Gérer l&#8217;accès aux données (récupérer et modifier les données)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="définir-le-modèle"><a class="anchor" href="#définir-le-modèle"></a>Définir le modèle</h3>
+<div class="sect3">
+<h4 id="associer-une-table-à-une-classe-les-entités-entities"><a class="anchor" href="#associer-une-table-à-une-classe-les-entités-entities"></a>Associer une table à une classe, les entités (entities)</h4>
+<div class="listingblock">
+<div class="title">Listing 2. Classe Person associée à la table PERSONS sans référence aux autres tables</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="annotation">@Table</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">PERSONS</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Personne</span>
+{
+    <span class="annotation">@Id</span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY) <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id; <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="annotation">@Basic</span> <i class="conum" data-value="6"></i><b>(6)</b>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SURNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>, length = <span class="integer">60</span>) <i class="conum" data-value="7"></i><b>(7)</b>
+    <span class="directive">private</span> <span class="predefined-type">String</span> nom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">GIVENNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">40</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaiscance;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> photo;
+
+    <span class="directive">public</span> <span class="type">long</span> getId() {
+        <span class="keyword">return</span> id;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setId(<span class="type">long</span> id) {
+        <span class="local-variable">this</span>.id = id;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getNom() {
+        <span class="keyword">return</span> nom;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setNom(<span class="predefined-type">String</span> surname) {
+        <span class="local-variable">this</span>.nom = surname;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getPrenom() {
+        <span class="keyword">return</span> prenom;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setPrenom(<span class="predefined-type">String</span> givenname) {
+        <span class="local-variable">this</span>.prenom = givenname;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">Integer</span> getAnneeNaiscance() {
+        <span class="keyword">return</span> anneeNaiscance;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setAnneeNaiscance(<span class="predefined-type">Integer</span> birthYear) {
+        <span class="local-variable">this</span>.anneeNaiscance = birthYear;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getPhoto() {
+        <span class="keyword">return</span> photo;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setPhoto(<span class="predefined-type">String</span> imagePath) {
+        <span class="local-variable">this</span>.photo = imagePath;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">boolean</span> equals(<span class="predefined-type">Object</span> o) {
+        <span class="keyword">if</span> (<span class="local-variable">this</span> == o) <span class="keyword">return</span> <span class="predefined-constant">true</span>;
+        <span class="keyword">if</span> (o == <span class="predefined-constant">null</span> || getClass() != o.getClass()) <span class="keyword">return</span> <span class="predefined-constant">false</span>;
+        Personne that = (Personne) o;
+        <span class="keyword">return</span> id == that.id &amp;&amp;
+                Objects.equals(nom, that.nom) &amp;&amp;
+                Objects.equals(prenom, that.prenom) &amp;&amp;
+                Objects.equals(anneeNaiscance, that.anneeNaiscance) &amp;&amp;
+                Objects.equals(photo, that.photo);
+    }
+
+
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">int</span> hashCode() {
+        <span class="keyword">return</span> Objects.hash(id, nom, prenom, anneeNaiscance, photo);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="predefined-type">String</span> toString() {
+        <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">Personne{</span><span class="delimiter">&quot;</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">nom='</span><span class="delimiter">&quot;</span></span> + nom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, prenom='</span><span class="delimiter">&quot;</span></span> + prenom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, anneeNaiscance=</span><span class="delimiter">&quot;</span></span> + anneeNaiscance +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, photo='</span><span class="delimiter">&quot;</span></span> + photo + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">'</span><span class="content">}</span><span class="delimiter">'</span></span>;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@Entity</code> déclare la classe comme un objet persistant
+associé par défaut à la table de même nom (à la casse près).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>@Table</code> déclare le nom de la table associée à la classe, indispensable
+si les deux noms diffèrent comme c&#8217;est le cas ici.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>@Id</code> déclare l&#8217;attibut comme clé primaire, au moins un attribut doit
+être marqué par cette annotation</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>@GeneratedValue</code> indique que la valeur est générée automatiquement
+par le SGBD</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>L&#8217;attribut associé à la propriété, l&#8217;annotation se fait soit sur les
+getters, soit sur les attributs, mais on ne mélange pas les styles. De préférence on annote les attributs, ça facilite la lecture de la classe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td><code>@Basic</code> désigne une propriété associée à un type de base.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td><code>@Column</code> permet d&#8217;établir la correspondance entre la propriété de la classe
+et la colonne de la table, ainsi que certaines règles de validation commme
+l&#8217;interdiction de nullité, la longueur, le type&#8230;&#8203;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="gérer-les-associations-un-vers-plusieurs-code-manytoone-code-et-code-onetomany-code"><a class="anchor" href="#gérer-les-associations-un-vers-plusieurs-code-manytoone-code-et-code-onetomany-code"></a>Gérer les associations un vers plusieurs (<code>ManyToOne</code> et <code>OneToMany</code>)</h4>
+<div class="paragraph">
+<p>Dans le modèle un film a un réalisateur et un seul alors qu&#8217;une personne peut avoir réalisé plusieurs films.</p>
 </div>
 <div class="paragraph">
-<p>En cliquant sur un film, l&#8217;utilisateur accède aux détails du film : le réalisateur et la liste des acteurs principaux avec leur rôle dans le film, pour chaque personne une photo est affichée.</p>
+<p>La relation <code>Person</code> vers <code>Film</code> est de type <code>ManyToOne</code>, la relation <code>Film</code> vers
+<code>Person</code> est de type <code>OneToMany</code> c&#8217;est la relation Film qui contient la clé étrangère</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 3. La classe Film sans les méthodes</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.math.BigDecimal</span>;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">FILMS</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Film</span> {
+    <span class="annotation">@Id</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">TITLE</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">50</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> titre;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">RATING</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, precision = <span class="integer">1</span>)
+    <span class="directive">private</span> <span class="predefined-type">BigDecimal</span> note;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">120</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> afficheNom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Lob</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SUMMARY</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> resume;
+    <span class="annotation">@ManyToOne</span>(fetch = FetchType.EAGER) <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="annotation">@JoinColumn</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">FILM_DIRECTOR</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="directive">private</span> Personne realisateur; <i class="conum" data-value="3"></i><b>(3)</b>
+
+    ...
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>L&#8217;annotation <code>@ManyToOne</code> permet de savoir que l&#8217;objet annoté doit être retrouvé dans une autre table. Le paramètre <code>FetchType</code> permet de savoir s&#8217;il faut immédiatement retrouver l&#8217;objet lié (<code>EAGER</code>) ou s&#8217;il faut le retrouver seulement lorsqu&#8217;il est accédé dans l&#8217;application (<code>LAZY</code>). La deuxième option diffère la requête SQL jusqu&#8217;à ce que l&#8217;application cherche à accéder à l&#8217;objet Personne</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>L&#8217;annotation <code>@JoinColumn</code> permet à l&#8217;application de déterminer quelle colonne dans la table sert de clé étrangère pour retrouver l&#8217;objet lié</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Si <code>FILM_DIRECTOR</code> est une clé étrangère et un entier, l&#8217;objet associé est lui de type Personne. Avec JPA le développeur gère un graphe d&#8217;objets, pas une base de données SQL.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Listing 4. La classe Person sans les méthodes</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">PERSONS</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Personne</span>
+{
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SURNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>, length = <span class="integer">60</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> nom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">GIVENNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">40</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaiscance;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> photo;
+    <span class="annotation">@OneToMany</span>(cascade= CascadeType.ALL, mappedBy = <span class="string"><span class="delimiter">&quot;</span><span class="content">realisateur</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="directive">private</span> <span class="predefined-type">Collection</span>&lt;Film&gt; filmsRealises; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@OneToMany</code> indique qu&#8217;une instance de Personne peut être liée à plusieurs instances de Film en tant que réalisateur, c&#8217;est l&#8217;objet <code>realisateur</code> dans Film qui représente ce lien</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Comme une personne peut avoir réalisé plueieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n&#8217;a réalisé aucun film.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gérer-l-accès-aux-données-les-dépôts-repositories"><a class="anchor" href="#gérer-l-accès-aux-données-les-dépôts-repositories"></a>Gérer l&#8217;accès aux données, les dépôts (repositories)</h3>
+<div class="sect3">
+<h4 id="présentation-2"><a class="anchor" href="#présentation-2"></a>Présentation</h4>
+<div class="paragraph">
+<p>Si les classes Entity permettent de définir les structures de données et la façon dont les objets sont liés aux tables SQL, elles ne permettent pas de manipuler les tables : créer, lire, mettre à jour ou supprimer des données. En anglais ces actions sont connues sous le nom de <code>CRUD</code> (Create, Read, Update, Delete). Les objets qui permettent de faire des opérations de type <code>CRUD</code> sur une base de données sont appelés des DAO (Data Access Object).</p>
 </div>
 <div class="paragraph">
-<p>Les affiches des films sont fournies dans le dossier <code>resources/static/images/affiches</code>, les photos des personnes sont fournies dans le dossier <code>resources/static/images/photos</code>.</p>
+<p>Créer des DAOs est une tâche répétitive et ingrate, 90% du code est
+similaire d&#8217;un DAO à l&#8217;autre. Spring propose une méthode standard pour
+gérer les DAOs au travers d&#8217;objets, ou plutôt d&#8217;interfaces, de type
+<code>CrudRepository</code>, <code>PagingAndSortingRepository
+` ou `JpaRepository</code> qui hérite de la classe précédente. Dans les cas simples <code>CrudRepository</code> suffit largement.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="l-interface-crudrepository"><a class="anchor" href="#l-interface-crudrepository"></a>L&#8217;interface CrudRepository</h4>
+<div class="paragraph">
+<p>Permet d&#8217;effectuer toutes les opérations de base d&#8217;un DAO :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>long count()</code> : compte le nombre d&#8217;entités disponibles</p>
+</li>
+<li>
+<p><code>void delete(T entity)</code> : supprime l&#8217;entité passée en paramètre</p>
+</li>
+<li>
+<p><code>void deleteAll()</code> : supprime toutes les entités</p>
+</li>
+<li>
+<p><code>void deleteById(ID id)</code> : supprime une entité avec l&#8217;id passé en paramètre</p>
+</li>
+<li>
+<p><code>void existsById(ID id)</code> : retourne vrai si une entité avec l&#8217;id passé en paramètre existe</p>
+</li>
+<li>
+<p><code>Iterable&lt;T&gt; findAll()</code> : retourne toutes les instances du type</p>
+</li>
+<li>
+<p><code>Iterable&lt;T&gt; findAllById(Iterable&lt;ID&gt; id)</code> :</p>
+</li>
+<li>
+<p><code>Optional&lt;T&gt; findById(ID id)</code> : retrouve une entité par son id</p>
+</li>
+<li>
+<p><code>S save(S entity)</code> : sauvegarde une entité donnée</p>
+</li>
+<li>
+<p><code>Iterable&lt;S&gt; saveAll(Iterable&lt;S&gt; entities)</code> : sauvegarde toutes les entités passées en paramètre.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Le projet Sping Boot est configuré pour utiliser les templates Freemarker, la source de données est à votre disposition ainsi que les classes du modèle. Il vous reste à créer les contrôleurs et les templates Freemarker qui assurent l&#8217;affichage et le fonctionnement de l&#8217;application.</p>
+<p>Ci-dessous un exemple de CrudRepository :</p>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.dao</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.data.repository.CrudRepository</span>;
+<span class="keyword">import</span> <span class="include">org.vincimelun.cinemajpa.model.Personne</span>;
+
+<span class="directive">public</span> <span class="type">interface</span> <span class="class">PersonneRepository</span> <span class="directive">extends</span> CrudRepository&lt;Personne, <span class="predefined-type">Long</span>&gt; {
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configurer-un-projet-spring-boot-pour-utiliser-jpa"><a class="anchor" href="#configurer-un-projet-spring-boot-pour-utiliser-jpa"></a>Configurer un projet Spring Boot pour utiliser JPA</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="properties"># Configuration de Freemarker
+spring.freemarker.template-loader-path= classpath:/templates
+spring.freemarker.suffix= .ftl
+
+# Connexion à la base de données
+spring.datasource.url=jdbc:h2:file:c:/db/cinema <i class="conum" data-value="1"></i><b>(1)</b>
+#spring.datasource.url=jdbc:h2:file:~/db/cinema <i class="conum" data-value="2"></i><b>(2)</b>
+spring.datasource.driver-class-name=org.h2.Driver <i class="conum" data-value="3"></i><b>(3)</b>
+spring.datasource.username=sa <i class="conum" data-value="4"></i><b>(4)</b>
+spring.datasource.password= <i class="conum" data-value="5"></i><b>(5)</b>
+spring.jpa.hibernate.ddl-auto=create-drop <i class="conum" data-value="6"></i><b>(6)</b>
+spring.datasource.initialization-mode=always <i class="conum" data-value="7"></i><b>(7)</b>
+spring.h2.console.enabled=true <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Chaîne JDBC de connexion à la base de données, version Windows</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>La même version Linux ou Mac</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Driver JDBC à utiliser</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Utilisateur pour accéder à la source de données JDBC</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Mot de passe de l&#8217;utlisateur</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Le schéma de la base de données est généré à partir des entités JPA, à chaque exécution de l&#8217;application les tables sont supprimées et recrées, l&#8217;option <code>create-drop</code> n&#8217;est valable que pour la phase de développement, en production on utilise l&#8217;option <code>none</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Si un fichier `data.sql`est présent, il est automatiquement utilisé pour importer les données qu&#8217;il contient dans la base de données</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Permet d&#8217;accéder à la console H2 une fois que l&#8217;application est lancée à l&#8217;URL <code><a href="http://127.0.0.1/h2-console" class="bare">http://127.0.0.1/h2-console</a></code>, il s&#8217;agit d&#8217;une application web intégrée au moteur H2 permettant de manipuler la base de données</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="travail-à-faire"><a class="anchor" href="#travail-à-faire"></a>Travail à faire</h3>
 <div class="paragraph">
-<p>Une fois l&#8217;affichage des films et de leur détail réalisé, essayez de réfléchir à la mise en oeuvre d&#8217;un système de notation des films ouvert à chaque visiteur du site, mais qui empêche un visiteur donné de voter deux fois.</p>
+<p>A partir du projet <code>cinemajpa</code> présent sur la clé :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reprendre l&#8217;application les templates que vous aves créé pour l&#8217;application <code>cinema</code> de la semaine dernière et créez la partie contrôleur de <code>cinemajpa</code></p>
+</li>
+<li>
+<p>Pour l&#8217;entité Personne créez un formulaire qui permette de créer ou de modifier une personne, pour la photo d&#8217;une nouvelle personne vous utliserez pour l&#8217;instant l&#8217;image de substitution <code>person.png</code></p>
+</li>
+<li>
+<p>Même chose pour les films, mais en utilisant cette fois <code>poster.png</code> comme image de substitution</p>
+</li>
+<li>
+<p>Enfin imaginez une interface permettant de gérer les rôles associés à un film.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -574,7 +1038,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="footer">
 <div id="footer-text">
 Version 1.2<br>
-Last updated 2021-02-02 21:04:34 CET
+Last updated 2021-02-08 19:44:59 CET
 </div>
 </div>
 </body>
