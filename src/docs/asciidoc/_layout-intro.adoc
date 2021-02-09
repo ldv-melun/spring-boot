@@ -5,7 +5,7 @@ ifndef::backend-pdf[]
 endif::[]
 
 == Présentation
-Lorsqu'un application web est constituée de plusieurs _pages_,  il est alors
+Lorsqu'une application web est constituée de plusieurs _pages_,  il est alors
 de bon usage de conserver une unité de représentation.
 
 Techniquement, cette unité de représentation se base sur :
