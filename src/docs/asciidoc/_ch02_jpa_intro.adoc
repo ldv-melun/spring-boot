@@ -20,8 +20,6 @@ Pour la suite nous utiliserons le modèle suivant :
 .Modèle d'analyse du domaine
 [plantuml]
 ----
-left to right direction
-
 Object Film{
 id
 titre
@@ -44,12 +42,11 @@ rang
 name
 }
 
-Film "*" --- "realisateur 1" Personne :"  "
-Personne "1       \nacteur" *- "*" Role:"\n\n"
-Film "1" *- "*" Role
-
-
+Film "*" - "realisateur 1" Personne :"\t\t\t\t"
+Film "1" *- "*" Role :"\t\t\t"
+Role "*" -* "1\nacteur" Personne:"\t\t\t\t"
 ----
+
 
 Dans ce modèle un acteur peut avoir plusieurs rôles dans un film, ce n'est pa courant, mais ça arrive : dans "Docteur Folamour" Peter Sellers joue à la fois Colonel Lionel Mandrake, Président Merkin Muffley et Docteur Folamour.
 
