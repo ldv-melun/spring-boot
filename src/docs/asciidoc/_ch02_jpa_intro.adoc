@@ -44,7 +44,7 @@ rank
 name
 }
 
-Film "*" --- "director 1" Personne :"  "
+Film "*" --- "réalisateur 1" Personne :"  "
 Film "1" *- "*" Role
 Personne "1       \nacteur" *- "*" Role:"\n\n"
 
@@ -249,6 +249,7 @@ import java.util.Objects;
 @Table(name="FILMS")
 public class Film {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private long id;
     @Basic
