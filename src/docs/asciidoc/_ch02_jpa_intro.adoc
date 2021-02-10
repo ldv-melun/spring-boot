@@ -40,13 +40,14 @@ photo
 
 Object Role {
 id
-rank
+rang
 name
 }
 
-Film "*" --- "réalisateur 1" Personne :"  "
-Film "1" *- "*" Role
+Film "*" --- "realisateur 1" Personne :"  "
 Personne "1       \nacteur" *- "*" Role:"\n\n"
+Film "1" *- "*" Role
+
 
 ----
 
@@ -109,7 +110,7 @@ TIP: Il est fort pratique de représenter l'analyse sous la forme d'un diagramme
 
 === Associer une table à une classe, les entités (entities)
 
-.Classe Person associée à la table PERSONS sans référence aux autres tables
+.Classe Person associée à la table PERSONS (sans référence à d'autres entités)
 [source,java]
 ----
 package org.vincimelun.cinemajpa.model;
@@ -134,7 +135,7 @@ public class Personne
     private String prenom;
     @Basic
     @Column(name = "BIRTH_YEAR", nullable = true)
-    private Integer anneeNaiscance;
+    private Integer anneeNaissance;
     @Basic
     @Column(name = "IMAGE_PATH", nullable = true, length = 80)
     private String photo;
@@ -163,12 +164,12 @@ public class Personne
         this.prenom = givenname;
     }
 
-    public Integer getAnneeNaiscance() {
-        return anneeNaiscance;
+    public Integer getAnneeNaissance() {
+        return anneeNaissance;
     }
 
-    public void setAnneeNaiscance(Integer birthYear) {
-        this.anneeNaiscance = birthYear;
+    public void setAnneeNaissance(Integer birthYear) {
+        this.anneeNaissance = birthYear;
     }
 
     public String getPhoto() {
@@ -187,15 +188,13 @@ public class Personne
         return id == that.id &&
                 Objects.equals(nom, that.nom) &&
                 Objects.equals(prenom, that.prenom) &&
-                Objects.equals(anneeNaiscance, that.anneeNaiscance) &&
+                Objects.equals(anneeNaissance, that.anneeNaissance) &&
                 Objects.equals(photo, that.photo);
     }
 
-
-
     @Override
     public int hashCode() {
-        return Objects.hash(id, nom, prenom, anneeNaiscance, photo);
+        return Objects.hash(id, nom, prenom, anneeNaissance, photo);
     }
 
     @Override
@@ -203,7 +202,7 @@ public class Personne
         return "Personne{" +
                 "nom='" + nom + '\'' +
                 ", prenom='" + prenom + '\'' +
-                ", anneeNaiscance=" + anneeNaiscance +
+                ", anneeNaissance=" + anneeNaissance +
                 ", photo='" + photo + '\'' +
                 '}';
     }
@@ -231,8 +230,32 @@ l'interdiction de nullité, la longueur, le type...
 
 Dans le modèle un film a un réalisateur et un seul alors qu'une personne peut avoir réalisé plusieurs films.
 
-La relation `Person` vers `Film` est de type `ManyToOne`, la relation `Film` vers
-`Person` est de type `OneToMany` c'est la relation Film qui contient la clé étrangère
+[plantuml]
+----
+left to right direction
+
+Object Film{
+id
+titre
+dateRealisation
+resume
+note
+affiche
+}
+Object Personne{
+id
+nom
+prenom
+anneeNaissance
+photo
+}
+
+Film "*" --- "\t\t1\nrealisateur" Personne :"                  "
+
+----
+L'association de `Film` vers `Personne` est de type `ManyToOne`. Cette même association vue côté `Personne` est de type `OneToMany` vers `Film`.
+
+Si l'association est bidirectionnelle, la classe côté `ManyToOne` (dans notre cas `Film`) est dite propriétaire (_owner_) de l'association car sa table associée détient la clé étrangère de la relation. Le côté non propriétaire, ici `Personne`, doit utiliser l'élément _mappedBy_ de l'annotation pour spécifier l'attribut du côté propriétaire. Pour les données en base, le système assure la cohérence des liens entre objets en mémoire. Par contre, en cas gestion mémoire de ces liens par la logique applicative, la cohérence est du ressort du développeur.
 
 .La classe Film sans les méthodes
 [source,java]
@@ -303,7 +326,7 @@ public class Personne
     private String prenom;
     @Basic
     @Column(name = "BIRTH_YEAR", nullable = true)
-    private Integer anneeNaiscance;
+    private Integer anneeNaissance;
     @Basic
     @Column(name = "IMAGE_PATH", nullable = true, length = 80)
     private String photo;
@@ -314,7 +337,7 @@ public class Personne
 }
 ----
 <1> `@OneToMany` indique qu'une instance de Personne peut être liée à plusieurs instances de Film en tant que réalisateur, c'est l'objet `realisateur` dans Film qui représente ce lien
-<2> Comme une personne peut avoir réalisé plueieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n'a réalisé aucun film.
+<2> Comme une personne peut avoir réalisé plusieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n'a réalisé aucun film.
 
 == Gérer l'accès aux données, les dépôts (repositories)
 
@@ -340,8 +363,8 @@ Permet d'effectuer toutes les opérations de base d'un DAO :
 * `Iterable<T> findAll()` : retourne toutes les instances du type
 * `Iterable<T> findAllById(Iterable<ID> id)` :
 * `Optional<T> findById(ID id)` : retrouve une entité par son id
-* `S save(S entity)` : sauvegarde une entité donnée
-* `Iterable<S> saveAll(Iterable<S> entities)` : sauvegarde toutes les entités passées en paramètre.
+* `<S extends T> S save(S entity)` : sauvegarde une entité donnée
+* `<S extends T> Iterable<S> saveAll(Iterable<S> entities)` : sauvegarde toutes les entités passées en paramètre.
 
 Ci-dessous un exemple de CrudRepository :
 

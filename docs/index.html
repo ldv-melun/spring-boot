@@ -565,7 +565,7 @@ relationnelle par le biais :</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-94ce4971c7f3de01ca1a34ab400a6d04.png" alt="Modèle d'analyse du domaine" width="155" height="484">
+<img src="images/diag-46020967f4d9e1417783c1a928838940.png" alt="Modèle d'analyse du domaine" width="157" height="481">
 </div>
 <div class="title">Figure 1. Modèle d&#8217;analyse du domaine</div>
 </div>
@@ -653,7 +653,7 @@ Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un di
 <div class="sect3">
 <h4 id="associer-une-table-à-une-classe-les-entités-entities"><a class="anchor" href="#associer-une-table-à-une-classe-les-entités-entities"></a>Associer une table à une classe, les entités (entities)</h4>
 <div class="listingblock">
-<div class="title">Listing 2. Classe Person associée à la table PERSONS sans référence aux autres tables</div>
+<div class="title">Listing 2. Classe Person associée à la table PERSONS (sans référence à d&#8217;autres entités)</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
 
@@ -677,7 +677,7 @@ Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un di
     <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
     <span class="annotation">@Basic</span>
     <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
-    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaiscance;
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaissance;
     <span class="annotation">@Basic</span>
     <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
     <span class="directive">private</span> <span class="predefined-type">String</span> photo;
@@ -706,12 +706,12 @@ Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un di
         <span class="local-variable">this</span>.prenom = givenname;
     }
 
-    <span class="directive">public</span> <span class="predefined-type">Integer</span> getAnneeNaiscance() {
-        <span class="keyword">return</span> anneeNaiscance;
+    <span class="directive">public</span> <span class="predefined-type">Integer</span> getAnneeNaissance() {
+        <span class="keyword">return</span> anneeNaissance;
     }
 
-    <span class="directive">public</span> <span class="type">void</span> setAnneeNaiscance(<span class="predefined-type">Integer</span> birthYear) {
-        <span class="local-variable">this</span>.anneeNaiscance = birthYear;
+    <span class="directive">public</span> <span class="type">void</span> setAnneeNaissance(<span class="predefined-type">Integer</span> birthYear) {
+        <span class="local-variable">this</span>.anneeNaissance = birthYear;
     }
 
     <span class="directive">public</span> <span class="predefined-type">String</span> getPhoto() {
@@ -730,15 +730,13 @@ Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un di
         <span class="keyword">return</span> id == that.id &amp;&amp;
                 Objects.equals(nom, that.nom) &amp;&amp;
                 Objects.equals(prenom, that.prenom) &amp;&amp;
-                Objects.equals(anneeNaiscance, that.anneeNaiscance) &amp;&amp;
+                Objects.equals(anneeNaissance, that.anneeNaissance) &amp;&amp;
                 Objects.equals(photo, that.photo);
     }
 
-
-
     <span class="annotation">@Override</span>
     <span class="directive">public</span> <span class="type">int</span> hashCode() {
-        <span class="keyword">return</span> Objects.hash(id, nom, prenom, anneeNaiscance, photo);
+        <span class="keyword">return</span> Objects.hash(id, nom, prenom, anneeNaissance, photo);
     }
 
     <span class="annotation">@Override</span>
@@ -746,7 +744,7 @@ Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un di
         <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">Personne{</span><span class="delimiter">&quot;</span></span> +
                 <span class="string"><span class="delimiter">&quot;</span><span class="content">nom='</span><span class="delimiter">&quot;</span></span> + nom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
                 <span class="string"><span class="delimiter">&quot;</span><span class="content">, prenom='</span><span class="delimiter">&quot;</span></span> + prenom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
-                <span class="string"><span class="delimiter">&quot;</span><span class="content">, anneeNaiscance=</span><span class="delimiter">&quot;</span></span> + anneeNaiscance +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, anneeNaissance=</span><span class="delimiter">&quot;</span></span> + anneeNaissance +
                 <span class="string"><span class="delimiter">&quot;</span><span class="content">, photo='</span><span class="delimiter">&quot;</span></span> + photo + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
                 <span class="string"><span class="delimiter">'</span><span class="content">}</span><span class="delimiter">'</span></span>;
     }
@@ -799,9 +797,16 @@ l&#8217;interdiction de nullité, la longueur, le type&#8230;&#8203;</td>
 <div class="paragraph">
 <p>Dans le modèle un film a un réalisateur et un seul alors qu&#8217;une personne peut avoir réalisé plusieurs films.</p>
 </div>
+<div class="imageblock">
+<div class="content">
+<img src="images/diag-592e2b88d062e3594c70a879cdf2d2cb.png" alt="diag 592e2b88d062e3594c70a879cdf2d2cb" width="390" height="114">
+</div>
+</div>
 <div class="paragraph">
-<p>La relation <code>Person</code> vers <code>Film</code> est de type <code>ManyToOne</code>, la relation <code>Film</code> vers
-<code>Person</code> est de type <code>OneToMany</code> c&#8217;est la relation Film qui contient la clé étrangère</p>
+<p>L&#8217;association de <code>Film</code> vers <code>Personne</code> est de type <code>ManyToOne</code>. Cette même association vue côté <code>Personne</code> est de type <code>OneToMany</code> vers <code>Film</code>.</p>
+</div>
+<div class="paragraph">
+<p>Si l&#8217;association est bidirectionnelle, la classe côté <code>ManyToOne</code> (dans notre cas <code>Film</code>) est dite propriétaire (<em>owner</em>) de l&#8217;association car sa table associée détient la clé étrangère de la relation. Le côté non propriétaire, ici <code>Personne</code>, doit utiliser l&#8217;élément <em>mappedBy</em> de l&#8217;annotation pour spécifier l&#8217;attribut du côté propriétaire. Pour les données en base, le système assure la cohérence des liens entre objets en mémoire. Par contre, en cas gestion mémoire de ces liens par la logique applicative, la cohérence est du ressort du développeur.</p>
 </div>
 <div class="listingblock">
 <div class="title">Listing 3. La classe Film sans les méthodes</div>
@@ -884,7 +889,7 @@ l&#8217;interdiction de nullité, la longueur, le type&#8230;&#8203;</td>
     <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
     <span class="annotation">@Basic</span>
     <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
-    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaiscance;
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaissance;
     <span class="annotation">@Basic</span>
     <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
     <span class="directive">private</span> <span class="predefined-type">String</span> photo;
@@ -903,7 +908,7 @@ l&#8217;interdiction de nullité, la longueur, le type&#8230;&#8203;</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Comme une personne peut avoir réalisé plueieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n&#8217;a réalisé aucun film.</td>
+<td>Comme une personne peut avoir réalisé plusieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n&#8217;a réalisé aucun film.</td>
 </tr>
 </table>
 </div>
@@ -956,10 +961,10 @@ gérer les DAOs au travers d&#8217;objets, ou plutôt d&#8217;interfaces, de typ
 <p><code>Optional&lt;T&gt; findById(ID id)</code> : retrouve une entité par son id</p>
 </li>
 <li>
-<p><code>S save(S entity)</code> : sauvegarde une entité donnée</p>
+<p><code>&lt;S extends T&gt; S save(S entity)</code> : sauvegarde une entité donnée</p>
 </li>
 <li>
-<p><code>Iterable&lt;S&gt; saveAll(Iterable&lt;S&gt; entities)</code> : sauvegarde toutes les entités passées en paramètre.</p>
+<p><code>&lt;S extends T&gt; Iterable&lt;S&gt; saveAll(Iterable&lt;S&gt; entities)</code> : sauvegarde toutes les entités passées en paramètre.</p>
 </li>
 </ul>
 </div>
@@ -1063,7 +1068,7 @@ spring.h2.console.enabled=true <i class="conum" data-value="8"></i><b>(8)</b></c
 <div id="footer">
 <div id="footer-text">
 Version 1.2<br>
-Last updated 2021-02-09 02:35:50 CET
+Last updated 2021-02-09 15:22:41 CET
 </div>
 </div>
 </body>
