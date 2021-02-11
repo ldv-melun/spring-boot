@@ -993,8 +993,8 @@ spring.freemarker.template-loader-path= classpath:/templates
 spring.freemarker.suffix= .ftl
 
 # Connexion à la base de données
-spring.datasource.url=jdbc:h2:file:c:/db/cinema <i class="conum" data-value="1"></i><b>(1)</b>
-#spring.datasource.url=jdbc:h2:file:~/db/cinema <i class="conum" data-value="2"></i><b>(2)</b>
+spring.datasource.url=jdbc:h2:file:c:/db/cinema;AUTO_SERVER=true <i class="conum" data-value="1"></i><b>(1)</b>
+#spring.datasource.url=jdbc:h2:file:~/db/cinema;AUTO_SERVER=true <i class="conum" data-value="2"></i><b>(2)</b>
 spring.datasource.driver-class-name=org.h2.Driver <i class="conum" data-value="3"></i><b>(3)</b>
 spring.datasource.username=sa <i class="conum" data-value="4"></i><b>(4)</b>
 spring.datasource.password= <i class="conum" data-value="5"></i><b>(5)</b>
@@ -1011,7 +1011,7 @@ spring.h2.console.enabled=true <i class="conum" data-value="8"></i><b>(8)</b></c
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>La même version Linux ou Mac</td>
+<td>La même version Linux ou Mac. <code>;AUTO_SERVER=true</code> permet une connexion par des tiers comme intellij&#8230;&#8203; (H2 mixed mode)</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
@@ -1035,9 +1035,15 @@ spring.h2.console.enabled=true <i class="conum" data-value="8"></i><b>(8)</b></c
 </tr>
 <tr>
 <td><i class="conum" data-value="8"></i><b>8</b></td>
-<td>Permet d&#8217;accéder à la console H2 une fois que l&#8217;application est lancée à l&#8217;URL <code><a href="http://127.0.0.1/h2-console" class="bare">http://127.0.0.1/h2-console</a></code>, il s&#8217;agit d&#8217;une application web intégrée au moteur H2 permettant de manipuler la base de données</td>
+<td>Permet d&#8217;accéder à la console H2 une fois que l&#8217;application est lancée à l&#8217;URL <code><a href="http://localhost:8080/h2-console" class="bare">http://localhost:8080/h2-console</a></code>, il s&#8217;agit d&#8217;une application web intégrée au moteur H2 permettant de manipuler la base de données</td>
 </tr>
 </table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/data-source-idea-h2.png" alt="data-source-idea-h2.png">
+</div>
+<div class="title">Figure 2. Exemple de connexion à H2 avec intellij</div>
 </div>
 </div>
 <div class="sect2">

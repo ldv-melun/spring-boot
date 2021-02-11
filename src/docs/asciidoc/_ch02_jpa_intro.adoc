@@ -385,8 +385,8 @@ spring.freemarker.template-loader-path= classpath:/templates
 spring.freemarker.suffix= .ftl
 
 # Connexion à la base de données
-spring.datasource.url=jdbc:h2:file:c:/db/cinema <1>
-#spring.datasource.url=jdbc:h2:file:~/db/cinema <2>
+spring.datasource.url=jdbc:h2:file:c:/db/cinema;AUTO_SERVER=true <1>
+#spring.datasource.url=jdbc:h2:file:~/db/cinema;AUTO_SERVER=true <2>
 spring.datasource.driver-class-name=org.h2.Driver <3>
 spring.datasource.username=sa <4>
 spring.datasource.password= <5>
@@ -396,13 +396,17 @@ spring.h2.console.enabled=true <8>
 ----
 
 <1> Chaîne JDBC de connexion à la base de données, version Windows
-<2> La même version Linux ou Mac
+<2> La même version Linux ou Mac. `;AUTO_SERVER=true` permet une connexion par des tiers comme intellij... (H2 mixed mode)
 <3> Driver JDBC à utiliser
 <4> Utilisateur pour accéder à la source de données JDBC
 <5> Mot de passe de l'utlisateur
 <6> Le schéma de la base de données est généré à partir des entités JPA, à chaque exécution de l'application les tables sont supprimées et recrées, l'option `create-drop` n'est valable que pour la phase de développement, en production on utilise l'option `none`
+
 <7> Si un fichier `data.sql`est présent, il est automatiquement utilisé pour importer les données qu'il contient dans la base de données
-<8> Permet d'accéder à la console H2 une fois que l'application est lancée à l'URL `http://127.0.0.1/h2-console`, il s'agit d'une application web intégrée au moteur H2 permettant de manipuler la base de données
+<8> Permet d'accéder à la console H2 une fois que l'application est lancée à l'URL `http://localhost:8080/h2-console`, il s'agit d'une application web intégrée au moteur H2 permettant de manipuler la base de données
+
+.Exemple de connexion à H2 avec intellij
+image::data-source-idea-h2.png[data-source-idea-h2.png]
 
 == Travail à faire
 A partir du projet `cinemajpa` présent sur la clé :
