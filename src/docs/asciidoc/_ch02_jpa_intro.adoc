@@ -42,7 +42,7 @@ rang
 name
 }
 
-Film "*" - "realisateur 1" Personne :"\t\t\t\t"
+Film " * filmsRealises" - "realisateur 1" Personne :"\t\t\t\t"
 Film "1" *- "*" Role :"\t\t\t"
 Role "*" -* "1\nacteur" Personne:"\t\t\t\t"
 ----

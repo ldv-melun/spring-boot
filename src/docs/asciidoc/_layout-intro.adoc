@@ -14,12 +14,11 @@ Techniquement, cette unité de représentation se base sur :
 *  un ensemble de règles CSS partagées par l'ensemble des pages
 *  [des dépendances de bibliothèques js]
 
-Plutôt que de partir de rien (_from scratch_), ce qui serait fortement consommateur de ressources (humaines et de temps),
-il est recommandé de s'appuyer sur des solutions adaptées (par exemple https://getbootstrap.com/[Bootstrap] ou https://semantic-ui.com/[Semantic UI])
+En phase de prototypage, il est fréquent de s'appuyer sur des frameworks CSS (par exemples https://getbootstrap.com/[Bootstrap], https://bulma.io/[bulma] )
 
-Ces solutions intégrent de nombreux composants CSS et JS. Ces composants sont destinés au tiers client (navigateur, smartphone...).
+Ces solutions intègrent de nombreux composants CSS et JS. Ces composants sont destinés au tiers client (navigateur, smartphone...).
 
-Il existe 2 solutions pour distribuer ces composants aux clients:
+Il existe 2 solutions pour distribuer ces composants aux clients tiers :
 
 * donner aux clients un lien sur le réseau de contenu (_CDN content delivery network_), pour téléchargement, par exemple http://code.jquery.com/jquery-3.3.1.js
 * servir ces composants à partir du serveur web de l'application (communication HTTP entre le serveur HTTP de l'application et les clients), par exemple http://monapplication.com/js/jquery-3.3.1.js
@@ -28,7 +27,7 @@ Dans le cadre d'une application à faible diffusion, la deuxième solution peut 
 
 == webjars - une solution java
 
-Nous nous placons dans le cas où c'est l'application qui héberge les composants dont auront besoin ses clients.
+Nous nous placons dans le cas où c'est l'application qui héberge les composants dont auront besoin ses tiers clients.
 
 Initialement, l'application devra donc les obtenir (elle utilisera CDN pour l'occasion). Elle pourrait pour cela utiliser des gestionnaires de version spécilisés comme _npm_, _yarn_, _bower_...),
 mais il serait dommage de ne pas profiter du gestionnaire de version _maven_ ! C'est ce que permet la solution http://www.webjars.org/[webjars], qui encapsule les composants client dans un jar. Tout cela se passe côté serveur bien entendu.
@@ -148,7 +147,8 @@ Voyons maintenant des exemples de composants _fragment_
 .footer.html
 [source, html]
 ----
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
 </head>
@@ -156,12 +156,12 @@ Voyons maintenant des exemples de composants _fragment_
 <div th:fragment="footer"> <1>
   <div class="container">
     <footer>
-        &copy; 2018 myapplication.com
+        &copy; 2021 myapplication.com
     </footer>
 
     <script type="text/javascript"
             src="/webjars/bootstrap/4.1.3/js/bootstrap.min.js" <2>
-            th:src="@{/webjars/bootstrap/4.1.3/js/bootstrap.min.js}">
+            th:src="@{/webjars/bootstrap/4.1.3/js/bootstrap.min.js}"> <3>
     </script>
 
     <script type="text/javascript"
@@ -175,7 +175,8 @@ Voyons maintenant des exemples de composants _fragment_
 ----
 
 <1> Un composant est en fait le body d'une page HTML particulière, comportant une déclaration de fragment.
-<2> Sous IntelliJ, pensez à utiliser la complétion automatique (ctrl+ esp) pour l'expression de chemin (à reporter éventuellement en tant qu'expression thymeleaf `th:src`, qui, alors, prendra la main)
+<2> Ceci est un exemple (la doc thymleaf parle de _prototype_). Sous IntelliJ, pensez à utiliser la complétion automatique (ctrl+ esp) pour l'expression de chemin.
+<3> C'est la valeur _src_ qui sera appliquée. Les expressions thymleaf de chemin ou de lien sont encadrées  par `@{ ... }`.
 
 .header.html
 [source, html]
@@ -214,13 +215,12 @@ Voyons maintenant des exemples de composants _fragment_
 </html>
 ----
 
-<1> déclaration d'un (sous-)fragment
-<2> déclaration de bootstrap, préfixé par _webjars_,
-assisté par l'IDE grace au CLASSPATH
-<3> à reporter dans th:href pour la bonne gestion des chemins de ressources
+<1> déclaration d'un fragment nommé _header-css_
+<2> prototype de lien bootstrap
+<3> expression du lien th:href
 <4> le fichier CSS pour les redéfinitions propres à l'application (ne pas faire référence au dossier `static`)
-<5> déclaration d'un paramètre (avec valeur par défaut)
-<6> déclaration d'un "sous-fragment" (partie d'un fragment)
+<5> définition de la valeur de `<title>` avec valeur par défaut (opérateur elvis)
+<6> déclaration d'un autre fragment dans le même fichier
 
 == Controleur
 
@@ -241,6 +241,6 @@ portant le nom du rôle prioritairement concerné, un parti pris.
 
 == Documentation
 
-
+* Documentation générale :  https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html[thymeleaf documenataion]
 * Différentes façons d'inclure un fragment : http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#including-template-fragments[thymeleaf:insclusion de fragments]
 * Paramétrer un fragment : http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#parameterizable-fragment-signatures[fragment paramétré]
