@@ -15,12 +15,9 @@ Les données d'entrée concernées ici sont celles :
 * dans le corps de la requête HTTP (comme c'est le cas avec `post`)
 
 La validité de ces données peut être vérifiée à grand coup de if..else dans le corps
-des méthodes contrôleur. Cette façon risque fort d'introduire de la redondance de vérification
-et alourdira assurément le code.
+des méthodes contrôleur. Cette façon risque fort d'introduire de la redondance de vérification et alourdira assurément le code.
 
-Comme toujours, la réponse consiste à déléguer le travail de validation à des services dédiés,
-en particulier via l'API Java Bean Validation.
-
+Comme toujours, la réponse consiste à déléguer le travail de validation à des services dédiés, en particulier via l'API Java Bean Validation.
 
 == Annotations de validation
 
@@ -79,7 +76,7 @@ public class PersonController {
 }
 ----
 
-On prendra soin de déclarer l'annotation @Validated au niveau du contrôleur.
+On prendra soin de déclarer l'annotation @Validated au niveau de la classe contrôleur.
 
 Par défaut, une exception `ConstraintViolationException` sera déclenchée en cas de non respect de la contrainte sur le paramètre ou variable `name`.
 
@@ -95,7 +92,7 @@ de l'attribut (d'un setter) et la clé (la propriété _name_) de la valeur d'en
 Pour réaliser cette tâche, Spring utilise les techniques de _data binding_ (JavaBeans Specifications) et
 des convertisseurs.
 
-Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `Person` pour être ensuite passé en argument du contrôleur (méthode).
+Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `FormPerson` pour être ensuite passé en argument du contrôleur (méthode).
 
 [source, java, n]
 ----
@@ -103,7 +100,7 @@ Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `P
 [...]
 
 @PostMapping("/add")
- public String submit(@ModelAttribute Person person){
+ public String submit(@ModelAttribute FormPerson person){
    // ...
    return "redirect:/person/list";
  }
@@ -111,14 +108,14 @@ Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `P
 [...]
 ----
 
-Nous pouvons alors demander la validation du bean en question. footnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception]]
+Nous pouvons alors demander la validation du bean en question. footnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception, à moins de passer par des DTO...]]
 Pour ce faire, nous pouvons associer, au niveau d'un attribut (_field_),
 des contraintes déclaratives (`JSR-380` d'aout 2017). Exemple :
 
 
 [source, java, n]
 ----
-public class Person {
+public class FormPerson {
 
   @NotBlank
   @Size(min=2, max=30)
@@ -173,19 +170,19 @@ implémenter l'interface `org.springframework.validation.Validator`:
 
 [source, java, n]
 ----
-public class PersonValidator implements Validator {
+public class FormPersonValidator implements Validator {
 
   /**
    * This Validator validates just Person instances
    */
   public boolean supports(Class clazz) {
-    return Person.class.equals(clazz); <1>
+    return FormPerson.class.equals(clazz); <1>
   }
 
   public void validate(Object obj, Errors e) {<2>
     ValidationUtils.rejectIfEmpty(e, "name", "name.empty"); <3>
 
-    Person p = (Person) obj;
+    FormPerson p = (FormPerson) obj;
     // senior must have 2 adresses or more.
     if (p.getAge() > 80 && p.getAddresses().size() < 2) {
       e.rejectValue("addresses", "more.one.addresse.senior.citizen", "constraint senior addresses"); <4>
@@ -226,7 +223,7 @@ On déclare le validateur en tant que composant via l'annotation `@Component`
 import org.springframework.validation.Validator;
 
 @Component
-public class PersonValidator implements Validator { ... }
+public class FormPersonValidator implements Validator { ... }
 ----
 
 Puis un injecteur (sur l'attribut) dans la classe contrôleur :
@@ -239,7 +236,7 @@ Puis un injecteur (sur l'attribut) dans la classe contrôleur :
 public class PersonController {
 
     @Autowired
-    PersonValidator personValidator;
+    FormPersonValidator personValidator;
     ...
 ----
 
@@ -249,13 +246,15 @@ Que l'on utilise dans une méthode de ce contrôleur :
 ----
 
 @PostMapping("/add")
-public String submit(@ModelAttribute Person person, BindingResult result){ <1>
+public String submit(@ModelAttribute FormPerson personDto, BindingResult result){ <1>
 
-  personValidator.validate(person, result); <2>
+  personValidator.validate(personDto, result); <2>
 
   if (result.hasErrors()) { <3>
     return "person/form";
   }
+
+  Person person = converToEntity(personDto); <4>
 
   personneDao.save(person);
   return "redirect:/person/list";
@@ -265,6 +264,7 @@ public String submit(@ModelAttribute Person person, BindingResult result){ <1>
 <2> Lance la logique de validation.
 <3> En façon simple de détecter la présence d'erreurs. Dans ce cas, on retourne à la vue du formulaire
 qui se chargera de présenter les erreurs à 'utilisateur (chapitre suivant)
+<4> Conversion d'un DTO vers un objet métier. à ce sujet voir https://www.baeldung.com/entity-to-and-from-dto-for-a-java-spring-application[entity-to-and-from-dto-for-a-java-spring-application]
 
 ==== Par annotation
 
@@ -286,11 +286,11 @@ import javax.validation.ConstraintValidatorContext;
 
 
 public class PersonConstraintValidator
-       implements ConstraintValidator<PersonValidated, Person> { <1>
+       implements ConstraintValidator<PersonValidated, FormPerson> { <1>
 
    public void initialize(PersonValidated constraint) { } <2>
 
-   public boolean isValid(Person p, ConstraintValidatorContext context) { <3>
+   public boolean isValid(FormPerson p, ConstraintValidatorContext context) { <3>
 
      // senior must have 2 adresses or more.
      if (p.getAge() > 80 && p.getAddresses().size() < 2) {
@@ -306,7 +306,7 @@ public class PersonConstraintValidator
 <2> Pour recevoir les valeurs éventuelles d'attributs associés à l'annotation (aucun ici)
 <3> Cette méthode est le centre d'appel des règles métier.
 
-Nous allons maintenant créer l'annotion que nous appelerons `PersonValidated` - (voir https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/package-summary.html[Annotation API]):
+Nous allons maintenant créer l'annotation que nous appellerons `PersonValidated` - (voir https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/package-summary.html[Annotation API]):
 
 [source, java, n]
 ----
@@ -341,32 +341,32 @@ Nous pouvons maintenent utiliser l'annotation sur la classe métier :
 [source, java, n]
 ----
 @PersonValidated <1>
-@Entity
-@Table(name = "persons")
-public class Person {
+public class FormPerson {
   ...
 }
 ----
 
-<1> Placement de notre annotation `PersonValidated` (de portée glogale à la classe `Person`), qui s'ajoute aux autres.
+<1> Placement de notre annotation `PersonValidated` (de portée glogale à la classe `FormPerson`), qui s'ajoute aux autres.
 
 L'activation des opérations de validation se déclare, là où on en a besoin, par la présence de l'annotation `@Valid`, par exemple ici dans une méthode contrôleur.
 [source, java, n]
 ----
 
 @PostMapping("/add")
-public String submit(@Valid @ModelAttribute Person person, BindingResult result){ <1><2>
+public String submit(@Valid @ModelAttribute FormPerson personDto, BindingResult result){ <1><2>
 
   if (result.hasErrors()) { <3>
     return "person/form";
   }
+
+  Person person = converToEntity(personDto);
 
   personneDao.save(person);
   return "redirect:/person/list";
 }
 ----
 
-<1> On remarquera l'annotation `@Valid` placée avant et sur le paramètre `Person`
+<1> On remarquera l'annotation `@Valid` placée avant et sur le paramètre `FormPerson`
 <2> Suivi de `BindingResult` qui détiendra le résultat des opérations de validations (l'absence de ce paramètre entrainera une erreur)
 <3> Même logique que précédemment
 
@@ -423,7 +423,7 @@ la classe principale (le lanceur de l'application)
 
 === Logiques de présentation des erreurs
 
-On se place dans le cas où un utilisateur soumet un formulaire. Côté serveur, la validation peut révèler des erreurs
+On se place dans le cas où un utilisateur soumet un formulaire. Côté serveur, la validation peut révéler des erreurs
  d'entrée, suite par exemple à un non respect des consignes communiquées à l'utilisateur.
 
 Le scénario classique consiste alors à retourner le formulaire à l'utilisateur en
@@ -464,8 +464,7 @@ On remarquera l'usage de :
 * `th:if` qui conditionne l'insertion du paragraphe
 * `th:errors` (au pluriel) afin d'obtenir *tous* les messages d'erreurs liés à l'attribut `age`.
 
-On se refera à
-https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#validation-and-error-messages[th : validation-and-error-messages]
+On se refera à https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#validation-and-error-messages[th : validation-and-error-messages]
 
 à titre d'exemple :
 
@@ -492,13 +491,13 @@ public @interface PersonValidated {
 ...
 
 public class PersonConstraintValidator
-  implements ConstraintValidator<PersonValidated, Person> {
+  implements ConstraintValidator<PersonValidated, FormPerson> {
 
   public void initialize(PersonValidated constraint) {
 
   }
 
-  public boolean isValid(Person p, ConstraintValidatorContext context) {
+  public boolean isValid(FormPerson p, ConstraintValidatorContext context) {
 
     if (p.getSurname() == null || p.getSurname().isEmpty())
        return false;

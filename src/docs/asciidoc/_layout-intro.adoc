@@ -242,5 +242,8 @@ portant le nom du rôle prioritairement concerné, un parti pris.
 == Documentation
 
 * Documentation générale :  https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html[thymeleaf documenataion]
+
+* Ne pas passer à côté des classes utilitaires : https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects[classes utilitaires - avec exemples]
+
 * Différentes façons d'inclure un fragment : http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#including-template-fragments[thymeleaf:insclusion de fragments]
 * Paramétrer un fragment : http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#parameterizable-fragment-signatures[fragment paramétré]
