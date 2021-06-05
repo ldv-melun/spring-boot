@@ -20,4 +20,5 @@ endif::[]
 //include::_ch01_first_app.adoc[leveloffset=+1]
 // include::_ch02_jpa_intro.adoc[leveloffset=+1]
 
-include::_layout-intro.adoc[leveloffset=+1]
+// include::_layout-intro.adoc[leveloffset=+1]
+include::_validation.adoc[leveloffset=+1]

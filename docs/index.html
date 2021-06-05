@@ -524,14 +524,14 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table des matières</div>
 <ul class="sectlevel1">
-<li><a href="#introduction-layout-avec-thymleaf">Introduction (layout avec thymleaf)</a>
+<li><a href="#validation">Validation</a>
 <ul class="sectlevel2">
 <li><a href="#présentation">Présentation</a></li>
-<li><a href="#webjars-une-solution-java">webjars - une solution java</a></li>
-<li><a href="#webjars-cas-bootstrap">webjars - cas bootstrap</a></li>
-<li><a href="#layout-cas-thymeleaf">layout - cas thymeleaf</a></li>
-<li><a href="#controleur">Controleur</a></li>
-<li><a href="#documentation">Documentation</a></li>
+<li><a href="#annotations-de-validation">Annotations de validation</a></li>
+<li><a href="#validation-des-données-de-requêtes">Validation des données de requêtes</a></li>
+<li><a href="#validation-de-niveau-attributs-de-bean">Validation de niveau attributs de bean</a></li>
+<li><a href="#validation-de-niveau-bean">Validation de niveau bean</a></li>
+<li><a href="#montrer-les-erreurs-logique-de-présentation">Montrer les erreurs (logique de présentation)</a></li>
 </ul>
 </li>
 </ul>
@@ -539,363 +539,1009 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="introduction-layout-avec-thymleaf"><a class="anchor" href="#introduction-layout-avec-thymleaf"></a>Introduction (layout avec thymleaf)</h2>
+<h2 id="validation"><a class="anchor" href="#validation"></a>Validation</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="présentation"><a class="anchor" href="#présentation"></a>Présentation</h3>
 <div class="paragraph">
-<p>Lorsqu&#8217;une application web est constituée de plusieurs <em>pages</em>,  il est alors
-de bon usage de conserver une unité de représentation.</p>
+<p>Le contrôle de validité des <strong>données d&#8217;entrée</strong> est une tache incontrournable en développement web. On ne saurait être trop prudent car on ne peut supposer les intentions à l&#8217;origine d&#8217;une requête HTTP.</p>
 </div>
 <div class="paragraph">
-<p>Techniquement, cette unité de représentation se base sur :</p>
+<p>Les données d&#8217;entrée concernées ici sont celles :</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>un <strong>modèle</strong>, connu sous le nom de <em>template</em> ou <em>layout</em> (structuration HTML).</p>
+<p>dans l&#8217;url (exemple <code>product/23</code> ou  <code>product?id=23</code>)</p>
 </li>
 <li>
-<p>un ensemble de règles CSS partagées par l&#8217;ensemble des pages</p>
-</li>
-<li>
-<p>[des dépendances de bibliothèques js]</p>
+<p>dans le corps de la requête HTTP (comme c&#8217;est le cas avec <code>post</code>)</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>En phase de prototypage, il est fréquent de s&#8217;appuyer sur des frameworks CSS (par exemples <a href="https://getbootstrap.com/">Bootstrap</a>, <a href="https://bulma.io/">bulma</a> )</p>
+<p>La validité de ces données peut être vérifiée à grand coup de if..else dans le corps
+des méthodes contrôleur. Cette façon risque fort d&#8217;introduire de la redondance de vérification et alourdira assurément le code.</p>
 </div>
 <div class="paragraph">
-<p>Ces solutions intègrent de nombreux composants CSS et JS. Ces composants sont destinés au tiers client (navigateur, smartphone&#8230;&#8203;).</p>
-</div>
-<div class="paragraph">
-<p>Il existe 2 solutions pour distribuer ces composants aux clients tiers :</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>donner aux clients un lien sur le réseau de contenu (<em>CDN content delivery network</em>), pour téléchargement, par exemple <a href="http://code.jquery.com/jquery-3.3.1.js" class="bare">http://code.jquery.com/jquery-3.3.1.js</a></p>
-</li>
-<li>
-<p>servir ces composants à partir du serveur web de l&#8217;application (communication HTTP entre le serveur HTTP de l&#8217;application et les clients), par exemple <a href="http://monapplication.com/js/jquery-3.3.1.js" class="bare">http://monapplication.com/js/jquery-3.3.1.js</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Dans le cadre d&#8217;une application à faible diffusion, la deuxième solution peut être envisagée, de plus elle a le mérite d&#8217;assurer la disponibilité des composants (si l&#8217;application est disponible, alors ses composants le sont aussi), et, accessoirement, permet au développeur de travailler hors ligne.</p>
+<p>Comme toujours, la réponse consiste à déléguer le travail de validation à des services dédiés, en particulier via l&#8217;API Java Bean Validation.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="webjars-une-solution-java"><a class="anchor" href="#webjars-une-solution-java"></a>webjars - une solution java</h3>
+<h3 id="annotations-de-validation"><a class="anchor" href="#annotations-de-validation"></a>Annotations de validation</h3>
 <div class="paragraph">
-<p>Nous nous placons dans le cas où c&#8217;est l&#8217;application qui héberge les composants dont auront besoin ses tiers clients.</p>
+<p>Bean Validation définit un métamodèle et une API pour la validation de JavaBean.
+Les métadonnées sont représentées par des <strong>annotations</strong> (<a href="https://jcp.org/en/jsr/detail?id=303">JSR-303 est la référence intiale</a>)</p>
 </div>
 <div class="paragraph">
-<p>Initialement, l&#8217;application devra donc les obtenir (elle utilisera CDN pour l&#8217;occasion). Elle pourrait pour cela utiliser des gestionnaires de version spécilisés comme <em>npm</em>, <em>yarn</em>, <em>bower</em>&#8230;&#8203;),
-mais il serait dommage de ne pas profiter du gestionnaire de version <em>maven</em> ! C&#8217;est ce que permet la solution <a href="http://www.webjars.org/">webjars</a>, qui encapsule les composants client dans un jar. Tout cela se passe côté serveur bien entendu.</p>
+<p>Bean Validation 2.0 est définie par JSR 380 (juillet 2017) et prend en compte les nouvelles caractéristiques de Java 8 (version minimum requise de Java)</p>
 </div>
 <div class="paragraph">
-<p>Les WebJars sont des librairies à destination des clients-web (par exemple jQuery &amp; Bootstrap), packagées dans un fichier JAR (Java Archive), et disponible via divers gestionnaires d&#8217;automatisation de taches, comme <em>maven</em> par exemple.</p>
+<p>Hibernate propose une implémente de référence (<a href="http://hibernate.org/validator/">hibernate.org/validator</a>).</p>
 </div>
 <div class="paragraph">
-<p><a href="https://www.webjars.org/documentation" class="bare">https://www.webjars.org/documentation</a></p>
+<p>L&#8217;usage des annotations permet facilement de lier, à un même élément, une à plusieurs contraintes, appelées aussi régles de validation (<em>validation rules</em>).</p>
 </div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. Table Annotations</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contrainte</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Null</strong> <strong>@NotNull</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être <strong>null</strong> ou <strong>différent de null</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@AssertTrue  @AssertFalse</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être <strong>true</strong> ou <strong>false</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Min(value)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être un nombre dont la valeur est supérieure ou égale au minimum spécifié.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Max(value)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être un nombre dont la valeur est inférieure ou égale au maximum spécifié. Voir aussi <strong>@DecimalMin</strong>, <strong>@DecimalMax</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Size(min=, max=)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être un nombre dont la valeur est dans les bornes spécifiées (inclusives)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Negative</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être un nombre <strong>strictement négatif</strong> (zéro est considéré comme une valeur invalide). Voir aussi <strong>@NegativeOrZero</strong>, <strong>@Positive</strong>, <strong>@PositiveOrZero</strong>, <strong>@Digits</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Future</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être un instant, date ou time, dans le futur. Voir aussi <strong>@Past</strong>, <strong>@PastOrPresent</strong>, <strong>@FutureOrPresent</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Pattern(regexp =)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être validé par l&#8217;expression régulière</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@NotEmpty</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être non vide. Type supporté : <code>CharSequence</code>, <code>Collection</code>, <code>Map</code>, <code>array</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@NotBlank</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté doit être non null et doit contenir au moins un caractère 'non-blanc'. Type supporté : <code>CharSequence</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@Email</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">L&#8217;élément annoté (String) doit être une adresse email bine-formée.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>@CreditCardNumber</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(hibernate) L&#8217;élément annoté représente un numéro de carte de credit. Vérifie selon l&#8217;implémentation de l&#8217;algorithme Luhn (qui traite de la syntaxe, non de la validité !)</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p><span class="image"><img src="images/webjars-bt.png" alt="webjars-bt"></span></p>
-</div>
-<div class="paragraph">
-<p>La définition de la dépendance devra être copiée dans le fichier <strong>pom.xml</strong> du projet. C&#8217;est à partir de cette référence que <strong>maven</strong> téléchargera dans son dépot local les fichiers en question, et rendra accessibles ces fichiers en les plaçant dans le <em>CLASSPATH</em> du projet (ce qui les rendra accessible à l&#8217;IDE).</p>
+<p>Voir une liste ici : <a href="https://beanvalidation.org/2.0/spec/#builtinconstraints/">table-builtin-constraints</a></p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="webjars-cas-bootstrap"><a class="anchor" href="#webjars-cas-bootstrap"></a>webjars - cas bootstrap</h3>
+<h3 id="validation-des-données-de-requêtes"><a class="anchor" href="#validation-des-données-de-requêtes"></a>Validation des données de requêtes</h3>
+<div class="paragraph">
+<p>Les données sont celles passées dans l&#8217;url, comme par exemple la valeur <code>23</code> dans : <em>product?id=23</em>  ou <em>product/23</em>.</p>
+</div>
 <div class="listingblock">
-<div class="title">Listing 1. pom.xml</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml">  [...]
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Validated</span>
+<span class="annotation">@Controller</span>
+<span class="annotation">@RequestMapping</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">/person</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PersonController</span> {
 
- <span class="tag">&lt;dependency&gt;</span>
-   <span class="tag">&lt;groupId&gt;</span>org.webjars<span class="tag">&lt;/groupId&gt;</span>
-   <span class="tag">&lt;artifactId&gt;</span>bootstrap<span class="tag">&lt;/artifactId&gt;</span>
-   <span class="tag">&lt;version&gt;</span>4.1.3<span class="tag">&lt;/version&gt;</span>
- <span class="tag">&lt;/dependency&gt;</span>
+  <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/validateMinNameParam</span><span class="delimiter">&quot;</span></span>)
+  <span class="directive">public</span> <span class="predefined-type">String</span> validateMinNameParam(
+    <span class="annotation">@RequestParam</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span>) <span class="annotation">@Size</span>(min=<span class="integer">2</span>) <span class="predefined-type">String</span> name) {
+    <span class="comment">// ...</span>
+  }
 
- <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.webjars/jquery --&gt;</span>
- <span class="tag">&lt;dependency&gt;</span>
-   <span class="tag">&lt;groupId&gt;</span>org.webjars<span class="tag">&lt;/groupId&gt;</span>
-   <span class="tag">&lt;artifactId&gt;</span>jquery<span class="tag">&lt;/artifactId&gt;</span>
-   <span class="tag">&lt;version&gt;</span>3.3.1-1<span class="tag">&lt;/version&gt;</span>
- <span class="tag">&lt;/dependency&gt;</span>
+  <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/validateMinName/{name}</span><span class="delimiter">&quot;</span></span>)
+  <span class="directive">public</span> <span class="predefined-type">String</span> validateMinNamePathVariable(
+    <span class="annotation">@PathVariable</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span>) <span class="annotation">@Size</span>(min=<span class="integer">2</span>) <span class="predefined-type">String</span> name) {
+    <span class="comment">// ...</span>
+  }
 
-<span class="tag">&lt;/dependencies&gt;</span></code></pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Ces déclarations de dépendances, lorsqu&#8217;elle seront évaluées par <em>maven</em>, provoqueront le
-rapatriement, sur la machine hôte, des ressources inscrites dans le <em>webjars</em>.
-Ces ressources seront alors accessibles au projet, via l&#8217;IDE, au même titre que des librairies java.</p>
+<p>On prendra soin de déclarer l&#8217;annotation @Validated au niveau de la classe contrôleur.</p>
 </div>
 <div class="paragraph">
-<p>Le développeur pourra donc y faire références à la conception des vues.</p>
+<p>Par défaut, une exception <code>ConstraintViolationException</code> sera déclenchée en cas de non respect de la contrainte sur le paramètre ou variable <code>name</code>.</p>
+</div>
+<div class="paragraph">
+<p>Remarque : Par la suite <code>@Validated</code> devra être retiré pour supprimer l&#8217;effet <code>ConstraintViolationException</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="layout-cas-thymeleaf"><a class="anchor" href="#layout-cas-thymeleaf"></a>layout - cas thymeleaf</h3>
+<h3 id="validation-de-niveau-attributs-de-bean"><a class="anchor" href="#validation-de-niveau-attributs-de-bean"></a>Validation de niveau attributs de bean</h3>
 <div class="paragraph">
-<p>Avec <em>thymeleaf</em>, la conception d&#8217;un modèle de présentation (<strong>layout</strong> ou <strong>template</strong>)
-est basée sur la décomposition du modèle en <strong>fragments</strong>.</p>
+<p>Lorsque les données sont transmises par <code>post</code>, ces données
+peuvent être affectées aux différents attributs d&#8217;un <strong>bean</strong> :
+la logique d&#8217;affectation est basée sur correspondance entre le nom
+de l&#8217;attribut (d&#8217;un setter) et la clé (la propriété <em>name</em>) de la valeur d&#8217;entrée.</p>
 </div>
 <div class="paragraph">
-<p>Voici une organisation typique de ressources liées à la logique de présentation:</p>
+<p>Pour réaliser cette tâche, Spring utilise les techniques de <em>data binding</em> (JavaBeans Specifications) et
+des convertisseurs.</p>
 </div>
-<div class="literalblock">
+<div class="paragraph">
+<p>Dans cet exemple, les données d&#8217;entrée (<code>post</code>) sont mappées dans un objet <code>FormPerson</code> pour être ensuite passé en argument du contrôleur (méthode).</p>
+</div>
+<div class="listingblock">
 <div class="content">
-<pre>├── application.properties
-├── static
-│   └── css
-│       └── main.css <i class="conum" data-value="1"></i><b>(1)</b>
-└── templates
-    ├── admin <i class="conum" data-value="2"></i><b>(2)</b>
-    │   └── index.html <i class="conum" data-value="3"></i><b>(3)</b>
-    ├── error
-    │   └── 403.html
-    ...
-    ├── fragments
-    │   ├── footer.html <i class="conum" data-value="4"></i><b>(4)</b>
-    │   └── header.html
-    └─ index.html</pre>
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td>
+  <td class="code"><pre>
+[...]
+
+<span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
+ <span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@ModelAttribute</span> FormPerson person){
+   <span class="comment">// ...</span>
+   <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
+ }
+
+[...]</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Nous pouvons alors demander la validation du bean en question. Par prudence nous utilisons ici un <em>Form Bean</em>  (l&#8217;approche par des beans métier est contestée<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup>).
+Pour ce faire, nous pouvons associer, au niveau d&#8217;un attribut (<em>field</em>),
+des contraintes déclaratives (<code>JSR-380</code> d&#8217;aout 2017). Exemple :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td>
+  <td class="code"><pre><span class="directive">public</span> <span class="type">class</span> <span class="class">FormPerson</span> {
+
+  <span class="annotation">@NotBlank</span>
+  <span class="annotation">@Size</span>(min=<span class="integer">2</span>, max=<span class="integer">30</span>)
+  <span class="directive">private</span> <span class="predefined-type">String</span> name;
+
+  <span class="annotation">@NotNull</span>
+  <span class="annotation">@Min</span>(value=<span class="integer">18</span>, message=<span class="string"><span class="delimiter">&quot;</span><span class="content">{person.age.minor}</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">private</span> <span class="predefined-type">Integer</span> age;
+
+  <span class="annotation">@Size</span>(min=<span class="integer">1</span>, max=<span class="integer">3</span>)
+  <span class="directive">private</span> <span class="predefined-type">List</span>&lt;<span class="annotation">@NotBlank</span>(message=<span class="string"><span class="delimiter">&quot;</span><span class="content">{person.address.notblank}</span><span class="delimiter">&quot;</span></span>) <span class="predefined-type">String</span>&gt; addresses; <i class="conum" data-value="2"></i><b>(2)</b></pre></td>
+</tr></table></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>pour la redéfinition de règles héritées, propre à l&#8217;application</td>
+<td>La valeur du message peut être une clé i18n (comme ici) ou une constante littérale</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>en référence au rôle utilisateur prioritairement concerné (ici un <code>admin</code>)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>les vues des controleurs sont placées dans un dossier portant le nom racine d&#8217;un contrôleur (AdminController)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>les fichiers déclarant des <strong>fragments</strong> (parties réutilisées par les vues) sont logés dans le dossier <em>fragments</em></td>
+<td>Contrainte sur les éléments de la collection <em>addresses</em></td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Les différentes pages partagent toutes les mêmes parties <code>header</code> (parties &lt;head&gt; et menu) et <code>footer</code>.</p>
+<p>La validation des contraintes doit être demandée.
+Pour ce faire, deux déclarations sont attendues :</p>
 </div>
-<div class="paragraph">
-<p>Voici un exemple d&#8217;utilisation :</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>placement de l&#8217;annotation <strong>@Valid</strong> sur le bean injecté en argument de la méthode contrôleur</p>
+</li>
+<li>
+<p>déclaration d&#8217;un paramètre (injecté) de type <strong>BindingResult</strong> qui portera les informations résultantes de la validation.</p>
+</li>
+</ol>
 </div>
 <div class="listingblock">
-<div class="title">Listing 2. admin/index.html</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td>
+  <td class="code"><pre>
+[...]
+
+<span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
+ <span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@Valid</span> <span class="annotation">@ModelAttribute</span> Person person, BindingResult result){
+   <span class="keyword">if</span> (result.hasErrors()) {
+        <span class="keyword">return</span> ... ;
+    }
+   <span class="comment">// ...</span>
+   <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
+ }
+[...]</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>À noter que l&#8217;action de validation peut être réalisée manuellement dans le corps
+de la méthode contrôleur (il faut dans ce cas ne pas utiliser @Valid ni BindingResult).
+Un exemple ici : <a href="https://www.baeldung.com/javax-validation" class="bare">https://www.baeldung.com/javax-validation</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="validation-de-niveau-bean"><a class="anchor" href="#validation-de-niveau-bean"></a>Validation de niveau bean</h3>
+<div class="paragraph">
+<p>Les contraintes présentées jusqu&#8217;ici agissent au niveau de l&#8217;attribut.
+Pour des contraintes plus globales (cas de contraintes interdépendantes sur des attributs) on définira une <strong>contrainte métier</strong> au niveau de l&#8217;objet (de sa classe).</p>
+</div>
+<div class="paragraph">
+<p>Par leur nature très spécifique, ces contraintes doivent être programmées, leur classe doivent
+implémenter l&#8217;interface <code>org.springframework.validation.Validator</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td>
+  <td class="code"><pre><span class="directive">public</span> <span class="type">class</span> <span class="class">FormPersonValidator</span> <span class="directive">implements</span> <span class="predefined-type">Validator</span> {
+
+  <span class="comment">/**
+   * This Validator validates just Person instances
+   */</span>
+  <span class="directive">public</span> <span class="type">boolean</span> supports(<span class="predefined-type">Class</span> clazz) {
+    <span class="keyword">return</span> FormPerson.class.equals(clazz); <i class="conum" data-value="1"></i><b>(1)</b>
+  }
+
+  <span class="directive">public</span> <span class="type">void</span> validate(<span class="predefined-type">Object</span> obj, Errors e) {<i class="conum" data-value="2"></i><b>(2)</b>
+    ValidationUtils.rejectIfEmpty(e, <span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">name.empty</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="3"></i><b>(3)</b>
+
+    FormPerson p = (FormPerson) obj;
+    <span class="comment">// senior must have 2 adresses or more.</span>
+    <span class="keyword">if</span> (p.getAge() &gt; <span class="integer">80</span> &amp;&amp; p.getAddresses().size() &lt; <span class="integer">2</span>) {
+      e.rejectValue(<span class="string"><span class="delimiter">&quot;</span><span class="content">addresses</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">more.one.addresse.senior.citizen</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">constraint senior addresses</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="4"></i><b>(4)</b>
+    }
+  }
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Détermine la portée du validateur</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Le premier argument est l&#8217;objet à valider, le deuxième représente le <strong>BindingResult</strong> (implémente <code>Errors</code>) qui sera passé au contrôleur</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Une valeur 'empty' dans ce contexte signifie soit null soit chaine vide "". L&#8217;objet disposant de cet attribut ('name') n&#8217;a pas besoin d&#8217;être passé à cette méthode car l&#8217;objet <code>Errors</code> détient déjà une référence interne à l&#8217;objet cible.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>La méthode <code>rejectValue</code> nous permet de déclarer une erreur liée à un attribut (<a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/validation/Errors.html#rejectValue-java.lang.String-java.lang.String-">rejectValue API</a>)</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="images/rejectValue-api.png" alt="rejectValue-api"></span></p>
+</div>
+<div class="sect3">
+<h4 id="activation-dans-un-contrôleur"><a class="anchor" href="#activation-dans-un-contrôleur"></a>Activation dans un contrôleur</h4>
+<div class="paragraph">
+<p>Il existe plusieurs façons de faire, mais toutes sont dans un esprit de délégation.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>par injection du validateur</p>
+</li>
+<li>
+<p>via une annotation</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="par-injection-explicite"><a class="anchor" href="#par-injection-explicite"></a>Par injection explicite</h5>
+<div class="paragraph">
+<p>On déclare le validateur en tant que composant via l&#8217;annotation <code>@Component</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">import</span> <span class="include">org.springframework.validation.Validator</span>;
+
+<span class="annotation">@Component</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">FormPersonValidator</span> <span class="directive">implements</span> <span class="predefined-type">Validator</span> { ... }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Puis un injecteur (sur l&#8217;attribut) dans la classe contrôleur :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+</pre></td>
+  <td class="code"><pre>
+<span class="annotation">@Controller</span>
+<span class="annotation">@RequestMapping</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">/person</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PersonController</span> {
+
+    <span class="annotation">@Autowired</span>
+    FormPersonValidator personValidator;
+    ...</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Que l&#8217;on utilise dans une méthode de ce contrôleur :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td>
+  <td class="code"><pre>
+<span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@ModelAttribute</span> FormPerson personDto, BindingResult result){ <i class="conum" data-value="1"></i><b>(1)</b>
+
+  personValidator.validate(personDto, result); <i class="conum" data-value="2"></i><b>(2)</b>
+
+  <span class="keyword">if</span> (result.hasErrors()) { <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">person/form</span><span class="delimiter">&quot;</span></span>;
+  }
+
+  Person person = converToEntity(personDto); <i class="conum" data-value="4"></i><b>(4)</b>
+
+  personneDao.save(person);
+  <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Le paramètre <code>BindingResult</code> sert à stocker les différentes erreurs détectées par les validateurs.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Lance la logique de validation.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>En façon simple de détecter la présence d&#8217;erreurs. Dans ce cas, on retourne à la vue du formulaire
+qui se chargera de présenter les erreurs à 'utilisateur (chapitre suivant)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Conversion d&#8217;un DTO vers un objet métier. à ce sujet voir <a href="https://www.baeldung.com/entity-to-and-from-dto-for-a-java-spring-application">entity-to-and-from-dto-for-a-java-spring-application</a></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="par-annotation"><a class="anchor" href="#par-annotation"></a>Par annotation</h5>
+<div class="paragraph">
+<p>Cette autre façon, assez élégante, consiste à définir une <strong>annotation personnalisée</strong>
+ et s&#8217;appuie non plus sur l&#8217;API de validation de spring mais sur l&#8217;API javax.validation, de concert avec la logique de l&#8217;annotation <code>@Valid</code>.</p>
+</div>
+<div class="paragraph">
+<p>Pour commencer on définiera 2 composants :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Le validateur (<code>PersonConstraintValidator</code>)</p>
+</li>
+<li>
+<p>L&#8217;annotation associée (<code>PersonValidated</code>)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Le validateur :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td>
+  <td class="code"><pre><span class="keyword">import</span> <span class="include">javax.validation.ConstraintValidator</span>;
+<span class="keyword">import</span> <span class="include">javax.validation.ConstraintValidatorContext</span>;
+
+
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PersonConstraintValidator</span>
+       <span class="directive">implements</span> ConstraintValidator&lt;PersonValidated, FormPerson&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+
+   <span class="directive">public</span> <span class="type">void</span> initialize(PersonValidated constraint) { } <i class="conum" data-value="2"></i><b>(2)</b>
+
+   <span class="directive">public</span> <span class="type">boolean</span> isValid(FormPerson p, ConstraintValidatorContext context) { <i class="conum" data-value="3"></i><b>(3)</b>
+
+     <span class="comment">// senior must have 2 adresses or more.</span>
+     <span class="keyword">if</span> (p.getAge() &gt; <span class="integer">80</span> &amp;&amp; p.getAddresses().size() &lt; <span class="integer">2</span>) {
+       <span class="keyword">return</span> <span class="predefined-constant">false</span>;
+     }
+
+     <span class="keyword">return</span> <span class="predefined-constant">true</span>;
+   }
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>L&#8217;interface est paramétrée par l&#8217;interface décrivant l&#8217;annotation personnalisée (que nous définissons juste après) et par le type de l&#8217;objet à valider.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Pour recevoir les valeurs éventuelles d&#8217;attributs associés à l&#8217;annotation (aucun ici)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Cette méthode est le centre d&#8217;appel des règles métier.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Nous allons maintenant créer l&#8217;annotation que nous appellerons <code>PersonValidated</code> - (voir <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/package-summary.html">Annotation API</a>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td>
+  <td class="code"><pre><span class="keyword">package</span> <span class="namespace">fr.laerce.cinema.annotation</span>;
+
+<span class="keyword">import</span> <span class="include">fr.laerce.cinema.validator.PersonValidator</span>;
+
+<span class="keyword">import</span> <span class="include">javax.validation.Constraint</span>;
+<span class="keyword">import</span> <span class="include">javax.validation.Payload</span>;
+<span class="keyword">import</span> <span class="include">java.lang.annotation</span>.*;
+
+<span class="annotation">@Target</span>({<span class="predefined-type">ElementType</span>.TYPE})  <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME) <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="annotation">@Constraint</span>(validatedBy = PersonConstraintValidator.class) <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="annotation">@Documented</span> <i class="conum" data-value="4"></i><b>(4)</b>
+<span class="directive">public</span> <span class="annotation">@interface</span> PersonValidated { <i class="conum" data-value="5"></i><b>(5)</b>
+  <span class="predefined-type">String</span> message() <span class="keyword">default</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">{person.senioraddresses.invalid}</span><span class="delimiter">&quot;</span></span>; <i class="conum" data-value="6"></i><b>(6)</b>
+  <span class="predefined-type">Class</span>&lt;?&gt;<span class="type">[]</span> groups() <span class="keyword">default</span> {};
+  <span class="predefined-type">Class</span>&lt;? <span class="directive">extends</span> Payload&gt;<span class="type">[]</span> payload() <span class="keyword">default</span> {};
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>La cible de la validation, ici c&#8217;est la classe qui est ciblée, sinon ce peut être un attribut (<code>FIELD</code>), un
+constructeur (<code>CONSTRUCTOR</code>) &#8230;&#8203; (classes, méthodes, attributs, paramètres, variables locales et packages : <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html">ElementType</a>).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>La durée de vie (ici la plus longue)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Renseigne la classe d&#8217;implémentation de la validation</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>L&#8217;annotation fera partie de la documentation JavaDoc</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Le nom de l&#8217;interface, qui sera le <strong>nom de l&#8217;annotation</strong></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Le message (ou la clé du message) utilisé en cas d&#8217;invalidation</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Nous pouvons maintenent utiliser l&#8217;annotation sur la classe métier :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+</pre></td>
+  <td class="code"><pre><span class="annotation">@PersonValidated</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">FormPerson</span> {
+  ...
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Placement de notre annotation <code>PersonValidated</code> (de portée glogale à la classe <code>FormPerson</code>), qui s&#8217;ajoute aux autres.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>L&#8217;activation des opérations de validation se déclare, là où on en a besoin, par la présence de l&#8217;annotation <code>@Valid</code>, par exemple ici dans une méthode contrôleur.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td>
+  <td class="code"><pre>
+<span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@Valid</span> <span class="annotation">@ModelAttribute</span> FormPerson personDto, BindingResult result){ <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+
+  <span class="keyword">if</span> (result.hasErrors()) { <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">person/form</span><span class="delimiter">&quot;</span></span>;
+  }
+
+  Person person = converToEntity(personDto);
+
+  personneDao.save(person);
+  <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>On remarquera l&#8217;annotation <code>@Valid</code> placée avant et sur le paramètre <code>FormPerson</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Suivi de <code>BindingResult</code> qui détiendra le résultat des opérations de validations (l&#8217;absence de ce paramètre entrainera une erreur)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Même logique que précédemment</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="montrer-les-erreurs-logique-de-présentation"><a class="anchor" href="#montrer-les-erreurs-logique-de-présentation"></a>Montrer les erreurs (logique de présentation)</h3>
+<div class="paragraph">
+<p>Nous nous placons dans le cas d&#8217;une logique de présentation déportée à <em>thymeleaf</em>.</p>
+</div>
+<div class="sect3">
+<h4 id="logiques-de-présentation-des-erreurs"><a class="anchor" href="#logiques-de-présentation-des-erreurs"></a>Logiques de présentation des erreurs</h4>
+<div class="paragraph">
+<p>On se place dans le cas où un utilisateur soumet un formulaire. Côté serveur, la validation peut révéler des erreurs
+ d&#8217;entrée, suite par exemple à un non respect des consignes communiquées à l&#8217;utilisateur.</p>
+</div>
+<div class="paragraph">
+<p>Le scénario classique consiste alors à retourner le formulaire à l&#8217;utilisateur en
+lui soulignant les points posant problème.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Agir sur la classe CSS</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>L&#8217;idée consiste, en cas d&#8217;erreurs, à ajouter une classe CSS aux classes de l&#8217;élément :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{age}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">small</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:errorclass</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fieldError</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Si l&#8217;age (attribut de l&#8217;objet liée au formulaire) n&#8217;est pas validé (par exemple on attend un age &gt;= 18 alors que l&#8217;utilisateur a rentré 12), alors la sortie
+ sera de cette forme :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">12</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">small fieldError</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Agir l&#8217;ajout d&#8217;un message d&#8217;erreur</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>L&#8217;idée consiste à ajouter un élément HTML près de celui qui pose problème.
+Dans cet exemple on ajoute, sous condition d&#8217;erreurs, un élément paragraphe <code>p</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{age}</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;p</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${#fields.hasErrors('age')}</span><span class="delimiter">&quot;</span></span>
+   <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fielderr</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:errors</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{age}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Incorrect date<span class="tag">&lt;/p&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On remarquera l&#8217;usage de :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>th:if</code> qui conditionne l&#8217;insertion du paragraphe</p>
+</li>
+<li>
+<p><code>th:errors</code> (au pluriel) afin d&#8217;obtenir <strong>tous</strong> les messages d&#8217;erreurs liés à l&#8217;attribut <code>age</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>On se refera à <a href="https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html#validation-and-error-messages">th : validation-and-error-messages</a></p>
+</div>
+<div class="paragraph">
+<p>à titre d&#8217;exemple :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td>
+  <td class="code"><pre><span class="keyword">package</span> <span class="namespace">fr.laerce.cinema.annotation</span>;
+
+<span class="keyword">import</span> <span class="include">fr.laerce.cinema.validator.PersonValidator</span>;
+
+<span class="keyword">import</span> <span class="include">javax.validation.Constraint</span>;
+<span class="keyword">import</span> <span class="include">javax.validation.Payload</span>;
+<span class="keyword">import</span> <span class="include">java.lang.annotation</span>.*;
+
+<span class="annotation">@Target</span>({ <span class="predefined-type">ElementType</span>.TYPE})
+<span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+<span class="annotation">@Constraint</span>(validatedBy = PersonConstraintValidator.class)
+<span class="annotation">@Documented</span>
+<span class="directive">public</span> <span class="annotation">@interface</span> PersonValidated {
+  <span class="predefined-type">String</span> message() <span class="keyword">default</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">{person.bean.invalid}</span><span class="delimiter">&quot;</span></span>;
+  <span class="predefined-type">Class</span>&lt;?&gt;<span class="type">[]</span> groups() <span class="keyword">default</span> {};
+  <span class="predefined-type">Class</span>&lt;? <span class="directive">extends</span> Payload&gt;<span class="type">[]</span> payload() <span class="keyword">default</span> {};
+}
+
+...
+
+public <span class="type">class</span> <span class="class">PersonConstraintValidator</span>
+  <span class="directive">implements</span> ConstraintValidator&lt;PersonValidated, FormPerson&gt; {
+
+  <span class="directive">public</span> <span class="type">void</span> initialize(PersonValidated constraint) {
+
+  }
+
+  <span class="directive">public</span> <span class="type">boolean</span> isValid(FormPerson p, ConstraintValidatorContext context) {
+
+    <span class="keyword">if</span> (p.getSurname() == <span class="predefined-constant">null</span> || p.getSurname().isEmpty())
+       <span class="keyword">return</span> <span class="predefined-constant">false</span>;
+
+     <span class="keyword">if</span> (p.getBirthYear() == <span class="predefined-constant">null</span> || p.getBirthYear() &lt; <span class="integer">0</span>) {
+       <span class="keyword">return</span> <span class="predefined-constant">false</span>;
+     }
+
+     <span class="keyword">return</span> <span class="predefined-constant">true</span>;
+   }
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="html"><span class="doctype">&lt;!DOCTYPE HTML&gt;</span>
 <span class="tag">&lt;html</span> <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
 <span class="tag">&lt;head&gt;</span>
-    <span class="tag">&lt;title&gt;</span>Page Admin<span class="tag">&lt;/title&gt;</span>
-    <span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: header-css (title='Admin')</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;th:block</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: header-css</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
 <span class="tag">&lt;/head&gt;</span>
 <span class="tag">&lt;body&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: menu(activeTab='actors')</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
 
-<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: header</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="tag">&lt;main</span> <span class="attribute-name">role</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">main</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">jumbotron</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+      <span class="tag">&lt;h5</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">display-5</span><span class="delimiter">&quot;</span></span>
+         <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${person.id} ?</span>
+          <span class="content">#{form.person.update} :</span>
+          <span class="content">#{form.person.add}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Person<span class="tag">&lt;/h5&gt;</span>
 
-<span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${#fields.hasErrors('${person.*}')}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;ul&gt;</span>
+          <span class="tag">&lt;li</span> <span class="attribute-name">th:each</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">e : ${#fields.detailedErrors('${person.*}')}</span><span class="delimiter">&quot;</span></span>
+              <span class="attribute-name">th:class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${e.global}? globalerr : fielderr</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+            <span class="tag">&lt;span</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${e.global}? '*' : ${e.fieldName}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> * or field<span class="tag">&lt;/span&gt;</span> |
+            <span class="tag">&lt;span</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${e.message}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>The error message<span class="tag">&lt;/span&gt;</span>
+          <span class="tag">&lt;/li&gt;</span>
+        <span class="tag">&lt;/ul&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
 
-     <span class="tag">&lt;h1&gt;</span>Admin index<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;form</span> <span class="attribute-name">action</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:action</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/person/add}</span><span class="delimiter">&quot;</span></span>
+            <span class="attribute-name">th:object</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${person}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">enctype</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">multipart/form-data</span><span class="delimiter">&quot;</span></span>
+            <span class="attribute-name">method</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">post</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
 
-<span class="tag">&lt;/div&gt;</span>
-<span class="comment">&lt;!-- /.container --&gt;</span>
+        <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">hidden</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{id}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">hidden</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{imagePath}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
 
-<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/footer:: footer</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
-
-<span class="tag">&lt;/body&gt;</span>
-<span class="tag">&lt;/html&gt;</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>insertion du fragment <em>header-css</em> (définit dans le fichier <em>header.html</em>)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>insertion du fragment <em>header</em> (définit dans le fichier <em>header.html</em>)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>insertion du fragment <em>footer</em> (définit dans le fichier <em>footer.html</em>)</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Voyons maintenant des exemples de composants <em>fragment</em></p>
-</div>
-<div class="listingblock">
-<div class="title">Listing 3. footer.html</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;html</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/1999/xhtml</span><span class="delimiter">&quot;</span></span>
-      <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span>
-      <span class="attribute-name">xmlns:sec</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org/thymeleaf-extras-springsecurity4</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-<span class="tag">&lt;head&gt;</span>
-<span class="tag">&lt;/head&gt;</span>
-<span class="tag">&lt;body&gt;</span>
-<span class="tag">&lt;div</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">footer</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
-  <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-    <span class="tag">&lt;footer&gt;</span>
-        <span class="entity">&amp;copy;</span> 2021 myapplication.com
-    <span class="tag">&lt;/footer&gt;</span>
-
-    <span class="tag">&lt;script</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/javascript</span><span class="delimiter">&quot;</span></span>
-            <span class="attribute-name">src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/bootstrap/4.1.3/js/bootstrap.min.js</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
-            <span class="attribute-name">th:src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/bootstrap/4.1.3/js/bootstrap.min.js}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
-<span class="inline">    </span><span class="tag">&lt;/script&gt;</span>
-
-    <span class="tag">&lt;script</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/javascript</span><span class="delimiter">&quot;</span></span>
-            <span class="attribute-name">src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/jquery/3.3.1-1/jquery.min.js</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-<span class="inline">            th:src=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/jquery/3.3.1-1/jquery.min.js}</span><span class="delimiter">&quot;</span></span></span>
-            <span class="tag">&lt;/script&gt;</span>
-  <span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;/body&gt;</span>
-<span class="tag">&lt;/html&gt;</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Un composant est en fait le body d&#8217;une page HTML particulière, comportant une déclaration de fragment.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Ceci est un exemple (la doc thymleaf parle de <em>prototype</em>). Sous IntelliJ, pensez à utiliser la complétion automatique (ctrl+ esp) pour l&#8217;expression de chemin.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>C&#8217;est la valeur <em>src</em> qui sera appliquée. Les expressions thymleaf de chemin ou de lien sont encadrées  par <code>@{ &#8230;&#8203; }</code>.</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Listing 4. header.html</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;html</span> <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-<span class="tag">&lt;head&gt;</span>
-   <span class="tag">&lt;th:block</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">header-css</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
-      <span class="tag">&lt;link</span> <span class="attribute-name">rel</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">stylesheet</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/css</span><span class="delimiter">&quot;</span></span>
-        <span class="attribute-name">href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/bootstrap/4.1.3/css/bootstrap.min.css</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
-        <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/bootstrap/4.1.3/css/bootstrap.min.css}</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
-
-      <span class="tag">&lt;link</span> <span class="attribute-name">rel</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">stylesheet</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/css/main.css}</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
-        <span class="attribute-name">href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">../static/css/main.css</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
-
-      <span class="tag">&lt;title</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${title ?: 'Default title'}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/title&gt;</span> <i class="conum" data-value="5"></i><b>(5)</b>
-
-   <span class="tag">&lt;/th:block&gt;</span>
-<span class="tag">&lt;/head&gt;</span>
-<span class="tag">&lt;body&gt;</span>
-<span class="tag">&lt;div</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">header</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
-    <span class="tag">&lt;nav</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar navbar-inverse</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-            <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar-header</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-                <span class="tag">&lt;a</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar-brand</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Spring Boot<span class="tag">&lt;/a&gt;</span>
-            <span class="tag">&lt;/div&gt;</span>
-            <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">collapse navbar-collapse</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-                <span class="tag">&lt;ul</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">nav navbar-nav</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-                    <span class="tag">&lt;li</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">active</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;a</span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Home<span class="tag">&lt;/a&gt;</span><span class="tag">&lt;/li&gt;</span>
-                <span class="tag">&lt;/ul&gt;</span>
-            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-group</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="tag">&lt;label</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{form.givenname}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>First name<span class="tag">&lt;/label&gt;</span>
+          <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-control</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">aria-describedby</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">givennameHelp</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:attr</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">placeholder=#{form.givenname}</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{givenname}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+          <span class="tag">&lt;p</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${#fields.hasErrors('givenname')}</span><span class="delimiter">&quot;</span></span>
+             <span class="attribute-name">th:errors</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{givenname}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fielderr</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Incorrect
+            givename<span class="tag">&lt;/p&gt;</span>
         <span class="tag">&lt;/div&gt;</span>
-    <span class="tag">&lt;/nav&gt;</span>
-<span class="tag">&lt;/div&gt;</span>
 
+        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-group</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+          <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-control</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">aria-describedby</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">surnameHelp</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:attr</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">placeholder=#{form.surname}</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{surname}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+          <span class="tag">&lt;p</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${#fields.hasErrors('surname')}</span><span class="delimiter">&quot;</span></span>
+             <span class="attribute-name">th:errors</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{surname}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fielderr</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Incorrect
+            surname<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-group</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="tag">&lt;label</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{form.birthyear}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Annee de naissance<span class="tag">&lt;/label&gt;</span>
+          <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-control</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">aria-describedby</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">birthYearHelp</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:attr</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">placeholder=#{form.birthyear}</span><span class="delimiter">&quot;</span></span>
+                 <span class="attribute-name">th:field</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{birthYear}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+          <span class="tag">&lt;p</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${#fields.hasErrors('birthYear')}</span><span class="delimiter">&quot;</span></span>
+             <span class="attribute-name">th:errors</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{birthYear}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fielderr</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Incorrect date<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-group</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="tag">&lt;label</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{form.person.picture}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>file input<span class="tag">&lt;/label&gt;</span>
+          <span class="tag">&lt;p&gt;</span><span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">file</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">form-control-file</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">photo</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;span</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">*{imagePath}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Fichier photo<span class="tag">&lt;/span&gt;</span>
+          <span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attribute-name">th:if</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${person.id}</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">card</span><span class="delimiter">&quot;</span></span>
+            <span class="attribute-name">style</span>=<span class="string"><span class="delimiter">&quot;</span><span class="key">width</span>: <span class="float">15</span><span class="value">rem</span>;  <span class="key">margin-top</span>: <span class="float">2px</span>; <span class="key">margin-bottom</span>: <span class="float">2px</span>;<span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="tag">&lt;img</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">image-rounded img-fluid</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">width:100%</span><span class="delimiter">&quot;</span></span>
+               <span class="attribute-name">th:src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{'/person/imagename/'+${person.imagePath}}</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
+          <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">card-body</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+            <span class="tag">&lt;p</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">card-text</span><span class="delimiter">&quot;</span></span>
+               <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${person.givenname + ' ' +person.surname}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/p&gt;</span>
+          <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;button</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">submit</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{form.submit}</span><span class="delimiter">&quot;</span></span>
+           <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">btn btn-primary</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/form&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/main&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/footer.html :: footer</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
 <span class="tag">&lt;/body&gt;</span>
 <span class="tag">&lt;/html&gt;</span></code></pre>
 </div>
 </div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>déclaration d&#8217;un fragment nommé <em>header-css</em></td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>prototype de lien bootstrap</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>expression du lien th:href</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>le fichier CSS pour les redéfinitions propres à l&#8217;application (ne pas faire référence au dossier <code>static</code>)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>définition de la valeur de <code>&lt;title&gt;</code> avec valeur par défaut (opérateur elvis)</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>déclaration d&#8217;un autre fragment dans le même fichier</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="controleur"><a class="anchor" href="#controleur"></a>Controleur</h3>
 <div class="paragraph">
-<p>Voici un exemple de mise en oeuvre, à minima :</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"> <span class="comment">// AdminController</span>
-
-  <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/admin</span><span class="delimiter">&quot;</span></span>)
-  <span class="directive">public</span> <span class="predefined-type">String</span> admin() {
-     <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">/admin/index</span><span class="delimiter">&quot;</span></span>;
-  }</code></pre>
-</div>
+<p>Et une interprétation du code résultant par le navigateur :</p>
 </div>
 <div class="paragraph">
-<p>Nous avons ici rangé les vues dans des dossiers
-portant le nom du rôle prioritairement concerné, un parti pris.</p>
+<p><span class="image"><img src="images/cinema-error-ui.png" alt="cinema-error-ui"></span></p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="documentation"><a class="anchor" href="#documentation"></a>Documentation</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Documentation générale :  <a href="https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html">thymeleaf documenataion</a></p>
-</li>
-<li>
-<p>Ne pas passer à côté des classes utilitaires : <a href="https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects">classes utilitaires - avec exemples</a></p>
-</li>
-<li>
-<p>Différentes façons d&#8217;inclure un fragment : <a href="http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#including-template-fragments">thymeleaf:insclusion de fragments</a></p>
-</li>
-<li>
-<p>Paramétrer un fragment : <a href="http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#parameterizable-fragment-signatures">fragment paramétré</a></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Remarque : le validateur est utilisé pour déterminer la validité de l&#8217;année de naissance à titre d&#8217;exemple (pourrait être délégué à une annotation dans le cas d&#8217;une logique simple de contrôle)</p>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnote_1">
+<a href="#_footnoteref_1">1</a>. <a href="https://twitter.com/odrotbohm/status/1055015506326052865">C&#8217;est peut être un peu tard&#8230;&#8203; Certains considèrent cette pratique comme un défaut de conception, à moins de passer par des DTO&#8230;&#8203;</a>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.2<br>
-Last updated 2021-03-03 19:47:43 CET
+Last updated 2021-06-05 10:06:06 CEST
 </div>
 </div>
 </body>

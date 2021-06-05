@@ -6,8 +6,7 @@ endif::[]
 
 == Présentation
 
-Le contrôle de validité des *données d'entrée* est une tache obligée.
-En ce qui concerne les apllications web, on ne saurait être trop prudent : on ne peut supposer les intentions à l'origine d'une requête HTTP.
+Le contrôle de validité des *données d'entrée* est une tache incontrournable en développement web. On ne saurait être trop prudent car on ne peut supposer les intentions à l'origine d'une requête HTTP.
 
 Les données d'entrée concernées ici sont celles :
 
@@ -108,7 +107,7 @@ Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `F
 [...]
 ----
 
-Nous pouvons alors demander la validation du bean en question. footnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception, à moins de passer par des DTO...]]
+Nous pouvons alors demander la validation du bean en question. Par prudence nous utilisons ici un _Form Bean_  (l'approche par des beans métier est contestéefootnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception, à moins de passer par des DTO...]]).
 Pour ce faire, nous pouvons associer, au niveau d'un attribut (_field_),
 des contraintes déclaratives (`JSR-380` d'aout 2017). Exemple :
 
@@ -135,8 +134,8 @@ public class FormPerson {
 La validation des contraintes doit être demandée.
 Pour ce faire, deux déclarations sont attendues :
 
-. placement de l'annotation *@Valid* sur le bean
-. déclaration d'un paramètre (injecteur) de type *BindingResult* qui portera les informations résultantes de la validation.
+. placement de l'annotation *@Valid* sur le bean injecté en argument de la méthode contrôleur
+. déclaration d'un paramètre (injecté) de type *BindingResult* qui portera les informations résultantes de la validation.
 
 [source, java, n]
 ----
