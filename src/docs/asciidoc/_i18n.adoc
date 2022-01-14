@@ -92,14 +92,12 @@ et autant d'autres fichiers `.properties` qu'il y a de langues couvertes par l'a
 TIP: par défaut, `messages.properties` est attendu à la racine du dossier `resources`
 
 Exemple de messages traduits :
-
 ----
 # messages.properties
 site.title=My cinema
 reservationConfirmation=We have processed your reservation - thank you
 ----
 
-[source]
 ----
 # messages_fr.properties
 site.title=Mon cinema
@@ -120,8 +118,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.Locale;
-... // autre imports
-
 
 @Configuration
 public class InternationalizationConfig extends WebMvcConfigurerAdapter {
@@ -324,5 +320,8 @@ public class Person{
   private String primaryEmail;
 ...
 }
----
+----
 
+== Conlusion
+
+TODO

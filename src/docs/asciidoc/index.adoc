@@ -16,9 +16,9 @@ ifndef::backend-pdf[]
 :imagesdir: images
 endif::[]
 
-//include::_ch00_intro.adoc[leveloffset=+1]
-//include::_ch01_first_app.adoc[leveloffset=+1]
-// include::_ch02_jpa_intro.adoc[leveloffset=+1]
-
-// include::_layout-intro.adoc[leveloffset=+1]
+include::_ch00_intro.adoc[leveloffset=+1]
+include::_ch01_first_app.adoc[leveloffset=+1]
+include::_ch02_jpa_intro.adoc[leveloffset=+1]
+include::_layout-intro.adoc[leveloffset=+1]
+include::_i18n.adoc[leveloffset=+1]
 include::_validation.adoc[leveloffset=+1]

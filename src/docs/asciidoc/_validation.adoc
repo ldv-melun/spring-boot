@@ -96,15 +96,12 @@ Dans cet exemple, les données d'entrée (`post`) sont mappées dans un objet `F
 [source, java, n]
 ----
 
-[...]
-
 @PostMapping("/add")
  public String submit(@ModelAttribute FormPerson person){
    // ...
    return "redirect:/person/list";
  }
 
-[...]
 ----
 
 Nous pouvons alors demander la validation du bean en question. Par prudence nous utilisons ici un _Form Bean_  (l'approche par des beans métier est contestéefootnote:[https://twitter.com/odrotbohm/status/1055015506326052865[C'est peut être un peu tard... Certains considèrent cette pratique comme un défaut de conception, à moins de passer par des DTO...]]).
@@ -140,8 +137,6 @@ Pour ce faire, deux déclarations sont attendues :
 [source, java, n]
 ----
 
-[...]
-
 @PostMapping("/add")
  public String submit(@Valid @ModelAttribute Person person, BindingResult result){
    if (result.hasErrors()) {
@@ -150,7 +145,7 @@ Pour ce faire, deux déclarations sont attendues :
    // ...
    return "redirect:/person/list";
  }
-[...]
+
 ----
 
 À noter que l'action de validation peut être réalisée manuellement dans le corps

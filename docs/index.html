@@ -524,9 +524,54 @@ table.CodeRay td.code>pre{padding:0}
 <div id="toc" class="toc2">
 <div id="toctitle">Table des matières</div>
 <ul class="sectlevel1">
-<li><a href="#validation">Validation</a>
+<li><a href="#introduction">Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#spring">Spring</a></li>
+<li><a href="#spring-boot">Spring Boot</a></li>
+<li><a href="#les-dépendances-d-une-application-spring-boot">Les dépendances d&#8217;une application Spring Boot</a></li>
+<li><a href="#générer-une-application-spring-boot">Générer une application Spring Boot</a></li>
+</ul>
+</li>
+<li><a href="#première-application">Première application</a>
+<ul class="sectlevel2">
+<li><a href="#une-première-application-spring-boot">Une première application Spring Boot</a></li>
+<li><a href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li><a href="#introduction-à-jpa">Introduction à JPA</a>
 <ul class="sectlevel2">
 <li><a href="#présentation">Présentation</a></li>
+<li><a href="#définir-le-modèle">Définir le modèle</a></li>
+<li><a href="#gérer-l-accès-aux-données-les-dépôts-repositories">Gérer l&#8217;accès aux données, les dépôts (repositories)</a></li>
+<li><a href="#configurer-un-projet-spring-boot-pour-utiliser-jpa">Configurer un projet Spring Boot pour utiliser JPA</a></li>
+<li><a href="#travail-à-faire">Travail à faire</a></li>
+</ul>
+</li>
+<li><a href="#introduction-layout-avec-thymleaf">Introduction (layout avec thymleaf)</a>
+<ul class="sectlevel2">
+<li><a href="#présentation-3">Présentation</a></li>
+<li><a href="#webjars-une-solution-java">webjars - une solution java</a></li>
+<li><a href="#webjars-cas-bootstrap">webjars - cas bootstrap</a></li>
+<li><a href="#layout-cas-thymeleaf">layout - cas thymeleaf</a></li>
+<li><a href="#controleur">Controleur</a></li>
+<li><a href="#documentation">Documentation</a></li>
+</ul>
+</li>
+<li><a href="#internationalisation">Internationalisation</a>
+<ul class="sectlevel2">
+<li><a href="#présentation-4">Présentation</a></li>
+<li><a href="#identification-de-la-langue-de-l-utilisateur">Identification de la langue de l&#8217;utilisateur</a></li>
+<li><a href="#externalisation-des-messages">Externalisation des messages</a></li>
+<li><a href="#configuration-des-chemins-de-messages">Configuration des chemins de messages</a></li>
+<li><a href="#détection-et-changement-de-langue">Détection et changement de langue</a></li>
+<li><a href="#format-des-messages">Format des messages</a></li>
+<li><a href="#messages-en-dehors-de-thymeleaf">Messages en dehors de thymeleaf</a></li>
+<li><a href="#conlusion">Conlusion</a></li>
+</ul>
+</li>
+<li><a href="#validation">Validation</a>
+<ul class="sectlevel2">
+<li><a href="#présentation-5">Présentation</a></li>
 <li><a href="#annotations-de-validation">Annotations de validation</a></li>
 <li><a href="#validation-des-données-de-requêtes">Validation des données de requêtes</a></li>
 <li><a href="#validation-de-niveau-attributs-de-bean">Validation de niveau attributs de bean</a></li>
@@ -539,10 +584,1973 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="validation"><a class="anchor" href="#validation"></a>Validation</h2>
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="spring"><a class="anchor" href="#spring"></a>Spring</h3>
+<div class="paragraph">
+<p>Spring rend la programmation Java plus rapide, plus facile et plus sûre pour tout le monde. L&#8217;orientation de Spring sur la vitesse, la simplicité et la productivité en a fait l&#8217;un des plus populaires framework Java.</p>
+</div>
+<div class="paragraph">
+<p>On retrouve Spring dans tous les contextes : depuis les sites de commerce en ligne jusqu&#8217;aux voitures connectées, en passant par les applications de streaming TV et bien d&#8217;autres applications.</p>
+</div>
+<div class="paragraph">
+<p>Spring est un ensemble d&#8217;extensions et de bibliothèques tierces intégrées qui permet de bâtir à peu près n&#8217;importe quel type d&#8217;applicaton. Au coeur de Spring on retrouve l&#8217;Inversion de Contôle (Inversion of Control, <em>IoC</em>) et l&#8217;Injection de dépendances (Dependency Injection, <em>DI</em>), ces deux caractéristiques sont à la base d&#8217;un grand nombre d&#8217;autres caractéristiques et fonctionnalités.</p>
+</div>
+<div class="paragraph">
+<p>Une application Spring <em>classique</em> est relativement difficile à mettre en oeuvre et demande une expertise certaine de la part du chef de projet pour en construire l&#8217;ossature et définir les fichiers de configuration. Spring Boot est une verion de Spring plus facile à mettre en oeuvre tout en offrant les mêmes avantages que Spring. Spring Boot évite notamment les fichiers de configuration XML complexes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-boot"><a class="anchor" href="#spring-boot"></a>Spring Boot</h3>
+<div class="paragraph">
+<p>Spring Boot est une version de Spring qui privilégie les conventions plutôt que les configurations (<em>convention over configuration</em>), à savoir que si le développeur respecte un certain nombre de normes comme le nommage, le placement des fichiers de code, les annotations, &#8230;&#8203; il peut s&#8217;affranchir d&#8217;un grand nombre de fichiers de configuration. Spring fournit même un site dédié qui permet de générer un squelette d&#8217;application, <a href="https://start.spring.io" class="bare">https://start.spring.io</a> , connu également sous le nom de Spring Initializr.</p>
+</div>
+<div class="sect3">
+<h4 id="spring-boot-c-est"><a class="anchor" href="#spring-boot-c-est"></a>Spring Boot c&#8217;est :</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Un outil de construction rapide de projets Spring</p>
+<div class="ulist">
+<ul>
+<li>
+<p>L’intégration des nombreux sous-projets Spring</p>
+</li>
+<li>
+<p>La possibilité de choisir entre plusieurs technologies pour la persistance, la logique applicative ou la gestion des vues. Plusieurs technologies peuvent cohabiter</p>
+</li>
+<li>
+<p>L’assurance de toujours avoir les bonnes dépendances</p>
+</li>
+<li>
+<p>Etre prêt à commencer à programmer en quelques minutes</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Une vision convention plutôt que configuration</p>
+<div class="ulist">
+<ul>
+<li>
+<p>L’application est prévue pour fonctionner avec un ensemble cohérents de paramètres par défaut</p>
+</li>
+<li>
+<p>La configuration et la dépendance entre beans se fait principalement par annotations</p>
+</li>
+<li>
+<p>Utilisation de fichiers properties simples pour surcharger les paramètres par défaut</p>
+</li>
+<li>
+<p>On peut quand même utiliser des fichiers de configuration XML en faisant un effort</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="spring-boot-n-est-pas"><a class="anchor" href="#spring-boot-n-est-pas"></a>Spring Boot n&#8217;est pas :</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Une baguette magique</p>
+</li>
+<li>
+<p>Un outil de scaffolding</p>
+</li>
+<li>
+<p>La solution pour ne pas apprendre les mécanismes internes de Spring</p>
+</li>
+<li>
+<p>Un outil pour les allergiques à <em>Maven</em> et autre <em>Gradle</em></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="les-dépendances-d-une-application-spring-boot"><a class="anchor" href="#les-dépendances-d-une-application-spring-boot"></a>Les dépendances d&#8217;une application Spring Boot</h3>
+<div class="paragraph">
+<p><em>Spring Initializr</em> permet de choisir les dépendances/frameworks à utiliser pour la conception d&#8217;une application certaines dépendances sont presque indispensables à la création d&#8217;une application Web, d&#8217;autres sont optionnelles et peuvent être choisies plus tard.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Les dépendances indispensables :</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Spring Boot DevTools</code> : permet des redémarrages rapides des applications, le rechargement temps réel des configurations pour une expérience de programmation plus fluide. Mais consomme un peu plus de ressources.</p>
+</li>
+<li>
+<p><code>Spring Web</code> : pour construire des applications Web MVC, y compris RESTFUL. Utilise Apache Tomcat comme conteneur de servlets par défaut.</p>
+</li>
+<li>
+<p><code>Apache Freemarker</code> ou <code>Thymeleaf</code> : un des deux moteurs de templates pour gérer les pages HTML, pas les deux en même temps autant que possible.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Les dépendances optionnelles :</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Spring Data JPA</code> : pour gérer la persistance des données dans une base SQL</p>
+</li>
+<li>
+<p><code>Apache Derby Database</code> ou <code>H2 Database</code> ou <code>PostgreSQL Driver</code> ou <code>MySQL Driver</code> : pour gérer les accès à une base de données SQL. Nécessaire pour <code>Spring Data JPA</code>.</p>
+</li>
+<li>
+<p><code>Spring Security</code> : framework d&#8217;authentification et d&#8217;autorisation pour créer des applications sécurisées. Attention dès que ce composant est installé l&#8217;application demande une authentification.</p>
+</li>
+<li>
+<p><code>Lombok</code> : un framework qui permet de s&#8217;affranchir, entre autres, des getters et des setters. Attention pour l&#8217;utiliser il vaut mieux avoir installé le plugins IntelliJ correspondant.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="générer-une-application-spring-boot"><a class="anchor" href="#générer-une-application-spring-boot"></a>Générer une application Spring Boot</h3>
+<div class="paragraph">
+<p>Le moyen le plus simple pour générer une application Spring Boot est de passer par le site <a href="https://start.spring.io" class="bare">https://start.spring.io</a> qui permet positionner un certain nombre de paramètres et de choisir les dépendances à utiliser.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/spring-initializr.png" alt="start.spring.io index">
+</div>
+</div>
+<div class="paragraph">
+<p>Les choix possibles :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Les paramètres de l&#8217;application :</p>
+<div class="ulist">
+<ul>
+<li>
+<p>l&#8217;outil utilisé pour gérer le projet : <code>Maven</code> ou <code>Gradle</code></p>
+</li>
+<li>
+<p>le langage de programmation utilisés : <code>Java</code>, <code>Groovy</code> ou <code>Kotlin</code></p>
+</li>
+<li>
+<p>La version de Spring Boot</p>
+</li>
+<li>
+<p>Les métadonnées de l&#8217;application :</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Nom du groupe : nom dns de l&#8217;organisation</p>
+</li>
+<li>
+<p>Nom de l&#8217;artefact : nom du projet</p>
+</li>
+<li>
+<p>Nom d&#8217;affichage du projet</p>
+</li>
+<li>
+<p>Description du projet</p>
+</li>
+<li>
+<p>Le type de packaging :</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>jar</code> : application indépendante avec serveur tomcat intégré</p>
+</li>
+<li>
+<p><code>war</code> : application prête à être déployée dans un conteneur de servlets</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>La version de <code>Java</code> : 8 ou 11 recommandées, pas 15</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Les dépendances de l&#8217;application</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="première-application"><a class="anchor" href="#première-application"></a>Première application</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="une-première-application-spring-boot"><a class="anchor" href="#une-première-application-spring-boot"></a>Une première application Spring Boot</h3>
+<div class="sect3">
+<h4 id="créer-le-projet"><a class="anchor" href="#créer-le-projet"></a>Créer le projet</h4>
+<div class="paragraph">
+<p>Dans Spring Initializr effectuez les choix suivants :</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/sbi-first.png" alt="sbifirst.spring.io index">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Paramètres :</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Project : Maven Project</p>
+</li>
+<li>
+<p>Language : Java</p>
+</li>
+<li>
+<p>Spring Boot version : 2.4.2</p>
+</li>
+<li>
+<p>Métadonnées du projet :</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Group : fr.vincimelun</p>
+</li>
+<li>
+<p>Artifact : sbfirst</p>
+</li>
+<li>
+<p>Name : Spring Boot First</p>
+</li>
+<li>
+<p>Description : Première application Spring Boot</p>
+</li>
+<li>
+<p>Package name : fr.vincimelun.sbfirst</p>
+</li>
+<li>
+<p>Packaging : jar</p>
+</li>
+<li>
+<p>Java (JVM) version : 11</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Dependencies :</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Spring Boot DevTools</p>
+</li>
+<li>
+<p>Spring Web</p>
+</li>
+<li>
+<p>Apache Freemarker</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Spring Initilizr génére un fichier <code>.zip</code>, <code>sbfirst.zip</code>, qui contient le projet prêt à l&#8217;emploi.</p>
+</div>
+<div class="literalblock">
+<div class="title">Arborescence du projet <code>sbfirst</code></div>
+<div class="content">
+<pre class="nowrap">sbfirst
+├── .gitignore
+├── HELP.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml <i class="conum" data-value="1"></i><b>(1)</b>
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── fr
+    │   │       └── vincimelun
+    │   │           └── sbfirst
+    │   │               └── SpringBootFirstApplication.java <i class="conum" data-value="2"></i><b>(2)</b>
+    │   └── resources
+    │       ├── application.properties <i class="conum" data-value="3"></i><b>(3)</b>
+    │       ├── static <i class="conum" data-value="4"></i><b>(4)</b>
+    │       └── templates <i class="conum" data-value="5"></i><b>(5)</b>
+    └── test
+        └── java
+            └── fr
+                └── vincimelun
+                    └── sbfirst
+                        └── SpringBootFirstApplicationTests.java</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Fichier <code>Maven</code> définissant le projet</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>L&#8217;application principale (fonction main)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Le fichier de configuration principal de l&#8217;application</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Le dossier pour stocker les éléments fixes comme les images ou les feuilles de style css</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Le dossier de stockage des templates Freemarker ou Thymeleaf</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>La classe principale de l&#8217;application ressemble à celles qu&#8217;on peut écrire pour n&#8217;importe quelle application en mode ligne de commande : une fonction <code>main</code> statique qui permet d&#8217;instancier et de lancer l&#8217;application.</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 1. La classe principale de l&#8217;application</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">fr.vincimelun.sbfirst</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.boot.SpringApplication</span>;
+<span class="keyword">import</span> <span class="include">org.springframework.boot.autoconfigure.SpringBootApplication</span>;
+
+<span class="annotation">@SpringBootApplication</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">SpringBootFirstApplication</span> {
+
+  <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> main(<span class="predefined-type">String</span><span class="type">[]</span> args) { <i class="conum" data-value="1"></i><b>(1)</b>
+   SpringApplication.run(SpringBootFirstApplication.class, args); <i class="conum" data-value="2"></i><b>(2)</b>
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Fonction <code>main</code> de l&#8217;application</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Construction et lancement de l&#8217;application</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Le fichier <code>application.properties</code> est vide, il ne contiendra que les éléments particuliers à la configuration de l&#8217;application comme les informations de connexion aux bases de données, ou la configuration du moteur de templates. Par défaut tout doit fonctionner sur les <code>conventions</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="configurer-le-projet"><a class="anchor" href="#configurer-le-projet"></a>Configurer le projet</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="properties">spring.freemarker.template-loader-path= classpath:/templates
+spring.freemarker.suffix= .ftl</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="un-premier-contrôleur"><a class="anchor" href="#un-premier-contrôleur"></a>Un premier contrôleur</h4>
+<div class="paragraph">
+<p>Un contrôleur est une classe qui est annotée avec <code>@Controller</code> et qui contient des méthodes associées à des URI, ces methodes peuvent être associée à des annotations comme <code>@GetMapping</code>, <code>@PostMapping</code>, &#8230;&#8203; ou <code>@RequestMapping</code> plus générique. Les paramètres passés à ces méthodes sont variables et interprêtés par le moteur de Spring MVC.</p>
+</div>
+<div class="paragraph">
+<p>Par convention les contrôleurs sont créés dans le package <code>controller</code> de l&#8217;application</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 2. Un contrôleur simple</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">fr.vincimelun.sbfirst.controller</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.stereotype.Controller</span>;
+<span class="keyword">import</span> <span class="include">org.springframework.web.bind.annotation.GetMapping</span>;
+
+<span class="annotation">@Controller</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">MainController</span> {
+
+    <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="directive">public</span> <span class="predefined-type">String</span> index(){
+        <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">index</span><span class="delimiter">&quot;</span></span>; <i class="conum" data-value="2"></i><b>(2)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Route correspondant pour la méthode GET et l&#8217;URI <code>/</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Nom du template associé, sans l&#8217;extention <code>.ftl</code></td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Listing 3. Un template simple sans modèle associé</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="injectedfreemarker">&lt;html&gt;
+&lt;body&gt;
+&lt;h1&gt;Bienvenue dans votre première application Spring Boot&lt;/h1&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Pour passer des données au template associé à l&#8217;URI, il suffit de déclarer un objet de type <code>Model</code> dans les paramètres de la méthode. Attention cet objet est instancié par Spring, il n&#8217;y a qu&#8217;à l&#8217;utiliser. On peut considérer un objet de type <code>Model</code> comme un <code>Map</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 4. Exemple de gestion d&#8217;un objet <code>Model</code></div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/avecmodele</span><span class="delimiter">&quot;</span></span>)
+    <span class="directive">public</span> <span class="predefined-type">String</span> withModel(Model model){ <i class="conum" data-value="1"></i><b>(1)</b>
+        model.addAttribute(<span class="string"><span class="delimiter">&quot;</span><span class="content">nom</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Lagaffe</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="2"></i><b>(2)</b>
+        model.addAttribute(<span class="string"><span class="delimiter">&quot;</span><span class="content">profession</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Touche à tout</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="3"></i><b>(3)</b>
+        <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">avecmodele</span><span class="delimiter">&quot;</span></span>; <i class="conum" data-value="4"></i><b>(4)</b>
+    }</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Injection d&#8217;un objet de type Model dans la méthode</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Ajout de l&#8217;attribut <code>nom</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Ajout de l&#8217;attribut <code>profession</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Nom du template qui sera fusionné avec le <code>Model</code></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Le template associé peut utiliser les objets <code>nom</code> et <code>profession</code> du <code>Model</code></p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 5. Template associé au <code>Model</code></div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="injectedfreemarker">&lt;html&gt;
+&lt;body&gt;
+&lt;h1&gt;Avec des données passées au template&lt;/h1&gt;
+Nom : ${nom} &lt;br/&gt;
+Profession : ${profession} &lt;br/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="gérer-les-données-renvoyées-par-un-formulaire-html"><a class="anchor" href="#gérer-les-données-renvoyées-par-un-formulaire-html"></a>Gérer les données renvoyées par un formulaire HTML</h4>
+<div class="paragraph">
+<p>Pour récupérer les données d&#8217;un formulaire HTML ou utilise en paramètre un POJO annoté <code>@ModelAttribute</code> qui représente les données gérées par le formulaire. Par exemple si on souhaite récupérer des informations sur une personne représentée par son nom, son prénom et sa profession, il faut d&#8217;abord créer le POJO correspondant dans un package appelé <code>Model</code></p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 6. Le POJO <code>Personne</code></div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">fr.vincimelun.sbfirst.model</span>;
+
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Person</span> {
+    <span class="directive">private</span> <span class="predefined-type">String</span> name;
+    <span class="directive">private</span> <span class="predefined-type">String</span> givenName;
+    <span class="directive">private</span> <span class="predefined-type">String</span> job;
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getName() {
+        <span class="keyword">return</span> name;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setName(<span class="predefined-type">String</span> name) {
+        <span class="local-variable">this</span>.name = name;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getGivenName() {
+        <span class="keyword">return</span> givenName;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setGivenName(<span class="predefined-type">String</span> givenName) {
+        <span class="local-variable">this</span>.givenName = givenName;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getJob() {
+        <span class="keyword">return</span> job;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setJob(<span class="predefined-type">String</span> job) {
+        <span class="local-variable">this</span>.job = job;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensuite il faut créer deux méthodes dans la classe <code>MainController</code> une pour afficher le formulaire et une pour récupérer les données du formulaire et les traîter (ici il s&#8217;agira juste de les afficher).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td>
+  <td class="code"><pre> <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/personne</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+ <span class="directive">public</span> <span class="predefined-type">String</span> personFormDisplay(){
+   <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">personform</span><span class="delimiter">&quot;</span></span>;
+ }
+
+  <span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/personne</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="directive">public</span> <span class="predefined-type">String</span> personFormProcess(
+      <span class="annotation">@ModelAttribute</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">persondata</span><span class="delimiter">&quot;</span></span>) Person person, <i class="conum" data-value="3"></i><b>(3)</b>
+      Model model) <i class="conum" data-value="4"></i><b>(4)</b>
+  {
+   model.addAttribute(<span class="string"><span class="delimiter">&quot;</span><span class="content">persondisplay</span><span class="delimiter">&quot;</span></span>, person); <i class="conum" data-value="5"></i><b>(5)</b>
+   <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">persondisplay</span><span class="delimiter">&quot;</span></span>;
+  }</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Méthode associée à l&#8217;URI <code>/personne</code> et à la méthode GET pour afficher le formulaire</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Méhtode associée à l&#8217;URI <code>/personne</code> et à la méthode POST pour traiter le formulaire</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>L&#8217;objet associé au formulaire pour récupérer les données (voir l&#8217;explication sur le formulaire), le nom est celui de la valise <code>FORM</code> du formulaire HTML <code>persondata</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>L&#8217;objet <code>person</code> récupéré du formulaire est passé en paramètre au template d&#8217;affichage du résultat sous le nom <code>persondisplay</code></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Les templates associés sont les suivants</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 7. Formulaire de saisie : personform.ftl</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td>
+  <td class="code"><pre><span class="tag">&lt;html&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+<span class="tag">&lt;h1&gt;</span>Fiche d'information<span class="tag">&lt;/h1&gt;</span>
+<span class="tag">&lt;form</span> <span class="attribute-name">action</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/personne</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">method</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">post</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">persondata</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    Nom : <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;br</span><span class="tag">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    Prénom : <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">givenName</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;br</span><span class="tag">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    Professtion : <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">job</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;br</span><span class="tag">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="tag">&lt;input</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">submit</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Valider</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Le nom associé au formulaire doit être le même que celui du <code>@ModelAttribute</code> dans la méthode <code>personFormProcess</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Les noms des champs doivent être les mêmes que ceux de l&#8217;objet de type <code>Person</code> annoté par <code>@ModelAttribute</code></td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Listing 8. Affichage des données</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td>
+  <td class="code"><pre><span class="tag">&lt;html&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+<span class="tag">&lt;h1&gt;</span>Fiche personnelle<span class="tag">&lt;/h1&gt;</span>
+<span class="tag">&lt;ul&gt;</span>
+    <span class="tag">&lt;li&gt;</span>Nom : ${persondisplay.name}<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;li&gt;</span>Prenom : ${persondisplay.givenName}<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;li&gt;</span>Profession : ${persondisplay.job}<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="code-httpservletrequest-code-et-code-httpservletresponse-code"><a class="anchor" href="#code-httpservletrequest-code-et-code-httpservletresponse-code"></a><code>HttpServletRequest</code> et <code>HttpServletResponse</code></h4>
+<div class="paragraph">
+<p>Les objets <code>HttpServletRequest</code>, particulièrement utiles pour récupérer la session de l&#8217;utilisateur, et <code>HttpServletResponse</code> pour positionner les en-têtes HTTP sont toujours disponibles, il suffit de les déclarer en paramètre de la méthode contrôleur.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="exercices"><a class="anchor" href="#exercices"></a>Exercices</h3>
+<div class="sect3">
+<h4 id="todo"><a class="anchor" href="#todo"></a>ToDo</h4>
+<div class="paragraph">
+<p>Reprendre l&#8217;exercice sur les ToDos du cours sur les servlets et l&#8217;adapter à Spring Boot. Pour cet exercice vous vous contenterez de créer une classe Controller nommée <code>ToDoController</code> que vous ajouterez au projet existant et qui gère l&#8217;URI <code>/todo</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="nagioscfg"><a class="anchor" href="#nagioscfg"></a>NagiosCfg</h4>
+<div class="paragraph">
+<p>Reprendre l&#8217;exercice sur la génrération de fichiers de configuration Nagios et l&#8217;adapter à Spring Boot. Vous trouverez un corrigé version servlets en suivant le lien <a href="https://github.com/ocapuozzo/tomcat-switch-log" class="bare">https://github.com/ocapuozzo/tomcat-switch-log</a> . Pour cet exercice vous créerez un projet depuis <code>Spring Initializr</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction-à-jpa"><a class="anchor" href="#introduction-à-jpa"></a>Introduction à JPA</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="présentation"><a class="anchor" href="#présentation"></a>Présentation</h3>
+<div class="paragraph">
+<p>JPA est une interface de programmation permettant d&#8217;utiliser un modèle objet
+au-dessus d&#8217;une base de données relationnelle.</p>
+</div>
+<div class="paragraph">
+<p>JPA associe un graphe de classes Java aux tables d&#8217;une base de données
+relationnelle par le biais :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>de fichiers de configuration xml</p>
+</li>
+<li>
+<p>d&#8217;annotations depuis Java 5 (c&#8217;est la méthode préférée)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Pour la suite nous utiliserons le modèle suivant :</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/diag-a914caedbcc6bf866b70a096ee7c6f76.png" alt="Modèle d'analyse du domaine" width="532" height="201">
+</div>
+<div class="title">Figure 1. Modèle d&#8217;analyse du domaine</div>
+</div>
+<div class="paragraph">
+<p>Dans ce modèle un acteur peut avoir plusieurs rôles dans un film, ce n&#8217;est pa courant, mais ça arrive : dans "Docteur Folamour" Peter Sellers joue à la fois Colonel Lionel Mandrake, Président Merkin Muffley et Docteur Folamour.</p>
+</div>
+<div class="paragraph">
+<p>Parfois, la base de données préexiste à l&#8217;application à développer.</p>
+</div>
+<div class="paragraph">
+<p>Par exemple, voici un schéma d&#8217;une base de données, défini dans le dialecte H2, en phase avec le modèle d&#8217;analyse :</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 9. Script SQL de la base cinema</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="sql"><span class="class">CREATE</span> <span class="type">TABLE</span> PERSONS
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    SURNAME <span class="predefined-type">VARCHAR</span>(<span class="integer">60</span>) <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    GIVENNAME <span class="predefined-type">VARCHAR</span>(<span class="integer">40</span>),
+    BIRTH_YEAR <span class="predefined-type">INTEGER</span>,
+    IMAGE_PATH <span class="predefined-type">VARCHAR</span>(<span class="integer">80</span>)
+);
+
+<span class="class">CREATE</span> <span class="type">TABLE</span> FILMS
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    TITLE <span class="predefined-type">VARCHAR</span>(<span class="integer">50</span>),
+    RATING <span class="predefined-type">DECIMAL</span>(<span class="integer">2</span>,<span class="integer">1</span>),
+    IMAGE_PATH <span class="predefined-type">VARCHAR</span>(<span class="integer">120</span>),
+    SUMMARY CLOB,
+    FILM_DIRECTOR <span class="predefined-type">BIGINT</span>,
+    <span class="type">CONSTRAINT</span> FILMS_PERSONS_ID_FK <span class="directive">FOREIGN</span> <span class="type">KEY</span> (FILM_DIRECTOR)
+        <span class="keyword">REFERENCES</span> PERSONS (ID)
+);
+
+<span class="class">CREATE</span> <span class="type">TABLE</span> PLAY
+(
+    ID <span class="predefined-type">BIGINT</span> <span class="directive">AUTO_INCREMENT</span> <span class="directive">PRIMARY</span> <span class="type">KEY</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    PERSON_ID <span class="predefined-type">BIGINT</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    FILM_ID <span class="predefined-type">BIGINT</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    RANK <span class="predefined-type">INTEGER</span> <span class="keyword">NOT</span> <span class="predefined-constant">NULL</span>,
+    NAME <span class="predefined-type">VARCHAR</span>(<span class="integer">90</span>),
+    <span class="type">CONSTRAINT</span> PLAY___FK_PERSON <span class="directive">FOREIGN</span> <span class="type">KEY</span> (PERSON_ID)
+        <span class="keyword">REFERENCES</span> PERSONS (ID) <span class="keyword">ON</span> <span class="class">DELETE</span> <span class="directive">CASCADE</span> <span class="keyword">ON</span> <span class="class">UPDATE</span> <span class="directive">CASCADE</span>,
+    <span class="type">CONSTRAINT</span> PLAY_FILMS_ID_FK <span class="directive">FOREIGN</span> <span class="type">KEY</span> (FILM_ID)
+        <span class="keyword">REFERENCES</span> FILMS (ID)
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Une application JPA se divise en deux parties :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Définir le modèle de données (graphe d&#8217;objets)</p>
+</li>
+<li>
+<p>Gérer l&#8217;accès aux données (créer, récupérer, modifier et supprimer les données)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="définir-le-modèle"><a class="anchor" href="#définir-le-modèle"></a>Définir le modèle</h3>
+<div class="sect3">
+<h4 id="une-traduction-de-l-analyse"><a class="anchor" href="#une-traduction-de-l-analyse"></a>Une traduction de l&#8217;analyse</h4>
+<div class="paragraph">
+<p>Le modèle qui nous intéresse ici est celui centré sur la logique métier du client, les données qu&#8217;ils manipulent. Ces données sont regroupées en <strong>entités</strong>, qui, dans le code, sont représentées par des <strong>classes</strong>, dites <strong>métier</strong>, parfois stéréotypées &lt;&lt;entity&gt;&gt; dans les diagrammes d&#8217;analyse.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Il est fort pratique de représenter l&#8217;analyse sous la forme d&#8217;un diagramme de classes UML, car, en conception (design), l&#8217;analyse permet au développeur de se consacrer sur les détails des entités sans perdre le fil de leurs relations.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="associer-une-table-à-une-classe-les-entités-entities"><a class="anchor" href="#associer-une-table-à-une-classe-les-entités-entities"></a>Associer une table à une classe, les entités (entities)</h4>
+<div class="listingblock">
+<div class="title">Listing 10. Classe Person associée à la table PERSONS (sans référence à d&#8217;autres entités)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="annotation">@Table</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">PERSONS</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Personne</span>
+{
+    <span class="annotation">@Id</span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY) <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id; <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="annotation">@Basic</span> <i class="conum" data-value="6"></i><b>(6)</b>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SURNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>, length = <span class="integer">60</span>) <i class="conum" data-value="7"></i><b>(7)</b>
+    <span class="directive">private</span> <span class="predefined-type">String</span> nom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">GIVENNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">40</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaissance;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> photo;
+
+    <span class="directive">public</span> <span class="type">long</span> getId() {
+        <span class="keyword">return</span> id;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setId(<span class="type">long</span> id) {
+        <span class="local-variable">this</span>.id = id;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getNom() {
+        <span class="keyword">return</span> nom;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setNom(<span class="predefined-type">String</span> surname) {
+        <span class="local-variable">this</span>.nom = surname;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getPrenom() {
+        <span class="keyword">return</span> prenom;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setPrenom(<span class="predefined-type">String</span> givenname) {
+        <span class="local-variable">this</span>.prenom = givenname;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">Integer</span> getAnneeNaissance() {
+        <span class="keyword">return</span> anneeNaissance;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setAnneeNaissance(<span class="predefined-type">Integer</span> birthYear) {
+        <span class="local-variable">this</span>.anneeNaissance = birthYear;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getPhoto() {
+        <span class="keyword">return</span> photo;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setPhoto(<span class="predefined-type">String</span> imagePath) {
+        <span class="local-variable">this</span>.photo = imagePath;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">boolean</span> equals(<span class="predefined-type">Object</span> o) {
+        <span class="keyword">if</span> (<span class="local-variable">this</span> == o) <span class="keyword">return</span> <span class="predefined-constant">true</span>;
+        <span class="keyword">if</span> (o == <span class="predefined-constant">null</span> || getClass() != o.getClass()) <span class="keyword">return</span> <span class="predefined-constant">false</span>;
+        Personne that = (Personne) o;
+        <span class="keyword">return</span> id == that.id &amp;&amp;
+                Objects.equals(nom, that.nom) &amp;&amp;
+                Objects.equals(prenom, that.prenom) &amp;&amp;
+                Objects.equals(anneeNaissance, that.anneeNaissance) &amp;&amp;
+                Objects.equals(photo, that.photo);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">int</span> hashCode() {
+        <span class="keyword">return</span> Objects.hash(id, nom, prenom, anneeNaissance, photo);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="predefined-type">String</span> toString() {
+        <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">Personne{</span><span class="delimiter">&quot;</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">nom='</span><span class="delimiter">&quot;</span></span> + nom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, prenom='</span><span class="delimiter">&quot;</span></span> + prenom + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, anneeNaissance=</span><span class="delimiter">&quot;</span></span> + anneeNaissance +
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">, photo='</span><span class="delimiter">&quot;</span></span> + photo + <span class="string"><span class="delimiter">'</span><span class="char">\'</span><span class="delimiter">'</span></span> +
+                <span class="string"><span class="delimiter">'</span><span class="content">}</span><span class="delimiter">'</span></span>;
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@Entity</code> déclare la classe comme un objet persistant
+associé par défaut à la table de même nom (à la casse près).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>@Table</code> déclare le nom de la table associée à la classe, indispensable
+si les deux noms diffèrent comme c&#8217;est le cas ici.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>@Id</code> déclare l&#8217;attibut comme clé primaire, au moins un attribut doit
+être marqué par cette annotation</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>@GeneratedValue</code> indique que la valeur est générée automatiquement
+par le SGBD</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>L&#8217;attribut associé à la propriété, l&#8217;annotation se fait soit sur les
+getters, soit sur les attributs, mais on ne mélange pas les styles. De préférence on annote les attributs, ça facilite la lecture de la classe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td><code>@Basic</code> désigne une propriété associée à un type de base.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td><code>@Column</code> permet d&#8217;établir la correspondance entre la propriété de la classe
+et la colonne de la table, ainsi que certaines règles de validation commme
+l&#8217;interdiction de nullité, la longueur, le type&#8230;&#8203;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="gérer-les-associations-un-vers-plusieurs-code-manytoone-code-et-code-onetomany-code"><a class="anchor" href="#gérer-les-associations-un-vers-plusieurs-code-manytoone-code-et-code-onetomany-code"></a>Gérer les associations un vers plusieurs (<code>ManyToOne</code> et <code>OneToMany</code>)</h4>
+<div class="paragraph">
+<p>Dans le modèle un film a un réalisateur et un seul alors qu&#8217;une personne peut avoir réalisé plusieurs films.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/diag-592e2b88d062e3594c70a879cdf2d2cb.png" alt="diag 592e2b88d062e3594c70a879cdf2d2cb" width="390" height="114">
+</div>
+</div>
+<div class="paragraph">
+<p>L&#8217;association de <code>Film</code> vers <code>Personne</code> est de type <code>ManyToOne</code>. Cette même association vue côté <code>Personne</code> est de type <code>OneToMany</code> vers <code>Film</code>.</p>
+</div>
+<div class="paragraph">
+<p>Si l&#8217;association est bidirectionnelle, la classe côté <code>ManyToOne</code> (dans notre cas <code>Film</code>) est dite propriétaire (<em>owner</em>) de l&#8217;association car sa table associée détient la clé étrangère de la relation. Le côté non propriétaire, ici <code>Personne</code>, doit utiliser l&#8217;élément <em>mappedBy</em> de l&#8217;annotation pour spécifier l&#8217;attribut du côté propriétaire. Pour les données en base, le système assure la cohérence des liens entre objets en mémoire. Par contre, en cas gestion mémoire de ces liens par la logique applicative, la cohérence est du ressort du développeur.</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 11. La classe Film sans les méthodes</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.math.BigDecimal</span>;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">FILMS</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Film</span> {
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">TITLE</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">50</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> titre;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">RATING</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, precision = <span class="integer">1</span>)
+    <span class="directive">private</span> <span class="predefined-type">BigDecimal</span> note;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">120</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> afficheNom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Lob</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SUMMARY</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> resume;
+    <span class="annotation">@ManyToOne</span>(fetch = FetchType.EAGER) <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="annotation">@JoinColumn</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">FILM_DIRECTOR</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="directive">private</span> Personne realisateur; <i class="conum" data-value="3"></i><b>(3)</b>
+
+    ...
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>L&#8217;annotation <code>@ManyToOne</code> permet de savoir que l&#8217;objet annoté doit être retrouvé dans une autre table. Le paramètre <code>FetchType</code> permet de savoir s&#8217;il faut immédiatement retrouver l&#8217;objet lié (<code>EAGER</code>) ou s&#8217;il faut le retrouver seulement lorsqu&#8217;il est accédé dans l&#8217;application (<code>LAZY</code>). La deuxième option diffère la requête SQL jusqu&#8217;à ce que l&#8217;application cherche à accéder à l&#8217;objet Personne</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>L&#8217;annotation <code>@JoinColumn</code> permet à l&#8217;application de déterminer quelle colonne dans la table sert de clé étrangère pour retrouver l&#8217;objet lié</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Si <code>FILM_DIRECTOR</code> est une clé étrangère et un entier, l&#8217;objet associé est lui de type Personne. Avec JPA le développeur gère un graphe d&#8217;objets, pas une base de données SQL.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Listing 12. La classe Person sans les méthodes</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.model</span>;
+
+<span class="keyword">import</span> <span class="include">javax.persistence</span>.*;
+<span class="keyword">import</span> <span class="include">java.util.Collection</span>;
+<span class="keyword">import</span> <span class="include">java.util.Objects</span>;
+
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">PERSONS</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Personne</span>
+{
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ID</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>)
+    <span class="directive">private</span> <span class="type">long</span> id;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">SURNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">false</span>, length = <span class="integer">60</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> nom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">GIVENNAME</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">40</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> prenom;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">BIRTH_YEAR</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>)
+    <span class="directive">private</span> <span class="predefined-type">Integer</span> anneeNaissance;
+    <span class="annotation">@Basic</span>
+    <span class="annotation">@Column</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">IMAGE_PATH</span><span class="delimiter">&quot;</span></span>, nullable = <span class="predefined-constant">true</span>, length = <span class="integer">80</span>)
+    <span class="directive">private</span> <span class="predefined-type">String</span> photo;
+    <span class="annotation">@OneToMany</span>(cascade= CascadeType.ALL, mappedBy = <span class="string"><span class="delimiter">&quot;</span><span class="content">realisateur</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="directive">private</span> <span class="predefined-type">Collection</span>&lt;Film&gt; filmsRealises; <i class="conum" data-value="2"></i><b>(2)</b>
+
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@OneToMany</code> indique qu&#8217;une instance de Personne peut être liée à plusieurs instances de Film en tant que réalisateur, c&#8217;est l&#8217;objet <code>realisateur</code> dans Film qui représente ce lien</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Comme une personne peut avoir réalisé plusieurs films, ces films sont stockés dans une collection qui peut être vide si la personne n&#8217;a réalisé aucun film.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gérer-l-accès-aux-données-les-dépôts-repositories"><a class="anchor" href="#gérer-l-accès-aux-données-les-dépôts-repositories"></a>Gérer l&#8217;accès aux données, les dépôts (repositories)</h3>
+<div class="sect3">
+<h4 id="présentation-2"><a class="anchor" href="#présentation-2"></a>Présentation</h4>
+<div class="paragraph">
+<p>Si les classes Entity permettent de définir les structures de données et la façon dont les objets sont liés aux tables SQL, elles ne permettent pas de manipuler les tables : créer, lire, mettre à jour ou supprimer des données. En anglais ces actions sont connues sous le nom de <code>CRUD</code> (Create, Read, Update, Delete). Les objets qui permettent de faire des opérations de type <code>CRUD</code> sur une base de données sont appelés des DAO (Data Access Object).</p>
+</div>
+<div class="paragraph">
+<p>Créer des DAOs est une tâche répétitive et ingrate, 90% du code est
+similaire d&#8217;un DAO à l&#8217;autre. Spring propose une méthode standard pour
+gérer les DAOs au travers d&#8217;objets, ou plutôt d&#8217;interfaces, de type
+<code>CrudRepository</code>, <code>PagingAndSortingRepository
+` ou `JpaRepository</code> qui hérite de la classe précédente. Dans les cas simples <code>CrudRepository</code> suffit largement.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="l-interface-crudrepository"><a class="anchor" href="#l-interface-crudrepository"></a>L&#8217;interface CrudRepository</h4>
+<div class="paragraph">
+<p>Permet d&#8217;effectuer toutes les opérations de base d&#8217;un DAO :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>long count()</code> : compte le nombre d&#8217;entités disponibles</p>
+</li>
+<li>
+<p><code>void delete(T entity)</code> : supprime l&#8217;entité passée en paramètre</p>
+</li>
+<li>
+<p><code>void deleteAll()</code> : supprime toutes les entités</p>
+</li>
+<li>
+<p><code>void deleteById(ID id)</code> : supprime une entité avec l&#8217;id passé en paramètre</p>
+</li>
+<li>
+<p><code>void existsById(ID id)</code> : retourne vrai si une entité avec l&#8217;id passé en paramètre existe</p>
+</li>
+<li>
+<p><code>Iterable&lt;T&gt; findAll()</code> : retourne toutes les instances du type</p>
+</li>
+<li>
+<p><code>Iterable&lt;T&gt; findAllById(Iterable&lt;ID&gt; id)</code> :</p>
+</li>
+<li>
+<p><code>Optional&lt;T&gt; findById(ID id)</code> : retrouve une entité par son id</p>
+</li>
+<li>
+<p><code>&lt;S extends T&gt; S save(S entity)</code> : sauvegarde une entité donnée</p>
+</li>
+<li>
+<p><code>&lt;S extends T&gt; Iterable&lt;S&gt; saveAll(Iterable&lt;S&gt; entities)</code> : sauvegarde toutes les entités passées en paramètre.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ci-dessous un exemple de CrudRepository :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.vincimelun.cinemajpa.dao</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.data.repository.CrudRepository</span>;
+<span class="keyword">import</span> <span class="include">org.vincimelun.cinemajpa.model.Personne</span>;
+
+<span class="directive">public</span> <span class="type">interface</span> <span class="class">PersonneRepository</span> <span class="directive">extends</span> CrudRepository&lt;Personne, <span class="predefined-type">Long</span>&gt; {
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configurer-un-projet-spring-boot-pour-utiliser-jpa"><a class="anchor" href="#configurer-un-projet-spring-boot-pour-utiliser-jpa"></a>Configurer un projet Spring Boot pour utiliser JPA</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="properties"># Configuration de Freemarker
+spring.freemarker.template-loader-path= classpath:/templates
+spring.freemarker.suffix= .ftl
+
+# Connexion à la base de données
+spring.datasource.url=jdbc:h2:file:c:/db/cinema;AUTO_SERVER=true <i class="conum" data-value="1"></i><b>(1)</b>
+#spring.datasource.url=jdbc:h2:file:~/db/cinema;AUTO_SERVER=true <i class="conum" data-value="2"></i><b>(2)</b>
+spring.datasource.driver-class-name=org.h2.Driver <i class="conum" data-value="3"></i><b>(3)</b>
+spring.datasource.username=sa <i class="conum" data-value="4"></i><b>(4)</b>
+spring.datasource.password= <i class="conum" data-value="5"></i><b>(5)</b>
+spring.jpa.hibernate.ddl-auto=create-drop <i class="conum" data-value="6"></i><b>(6)</b>
+spring.datasource.initialization-mode=always <i class="conum" data-value="7"></i><b>(7)</b>
+spring.h2.console.enabled=true <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Chaîne JDBC de connexion à la base de données, version Windows</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>La même version Linux ou Mac. <code>;AUTO_SERVER=true</code> permet une connexion par des tiers comme intellij&#8230;&#8203; (H2 mixed mode)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Driver JDBC à utiliser</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Utilisateur pour accéder à la source de données JDBC</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Mot de passe de l&#8217;utlisateur</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Le schéma de la base de données est généré à partir des entités JPA, à chaque exécution de l&#8217;application les tables sont supprimées et recrées, l&#8217;option <code>create-drop</code> n&#8217;est valable que pour la phase de développement, en production on utilise l&#8217;option <code>none</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Si un fichier `data.sql`est présent, il est automatiquement utilisé pour importer les données qu&#8217;il contient dans la base de données</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Permet d&#8217;accéder à la console H2 une fois que l&#8217;application est lancée à l&#8217;URL <code><a href="http://localhost:8080/h2-console" class="bare">http://localhost:8080/h2-console</a></code>, il s&#8217;agit d&#8217;une application web intégrée au moteur H2 permettant de manipuler la base de données</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/data-source-idea-h2.png" alt="data-source-idea-h2.png">
+</div>
+<div class="title">Figure 2. Exemple de connexion à H2 avec intellij</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="travail-à-faire"><a class="anchor" href="#travail-à-faire"></a>Travail à faire</h3>
+<div class="paragraph">
+<p>A partir du projet <code>cinemajpa</code> présent sur la clé :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reprendre l&#8217;application les templates que vous aves créé pour l&#8217;application <code>cinema</code> de la semaine dernière et créez la partie contrôleur de <code>cinemajpa</code></p>
+</li>
+<li>
+<p>Pour l&#8217;entité Personne créez un formulaire qui permette de créer ou de modifier une personne, pour la photo d&#8217;une nouvelle personne vous utliserez pour l&#8217;instant l&#8217;image de substitution <code>person.png</code></p>
+</li>
+<li>
+<p>Même chose pour les films, mais en utilisant cette fois <code>poster.png</code> comme image de substitution</p>
+</li>
+<li>
+<p>Enfin imaginez une interface permettant de gérer les rôles associés à un film.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction-layout-avec-thymleaf"><a class="anchor" href="#introduction-layout-avec-thymleaf"></a>Introduction (layout avec thymleaf)</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="présentation-3"><a class="anchor" href="#présentation-3"></a>Présentation</h3>
+<div class="paragraph">
+<p>Lorsqu&#8217;une application web est constituée de plusieurs <em>pages</em>,  il est alors
+de bon usage de conserver une unité de représentation.</p>
+</div>
+<div class="paragraph">
+<p>Techniquement, cette unité de représentation se base sur :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>un <strong>modèle</strong>, connu sous le nom de <em>template</em> ou <em>layout</em> (structuration HTML).</p>
+</li>
+<li>
+<p>un ensemble de règles CSS partagées par l&#8217;ensemble des pages</p>
+</li>
+<li>
+<p>[des dépendances de bibliothèques js]</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>En phase de prototypage, il est fréquent de s&#8217;appuyer sur des frameworks CSS (par exemples <a href="https://getbootstrap.com/">Bootstrap</a>, <a href="https://bulma.io/">bulma</a> )</p>
+</div>
+<div class="paragraph">
+<p>Ces solutions intègrent de nombreux composants CSS et JS. Ces composants sont destinés au tiers client (navigateur, smartphone&#8230;&#8203;).</p>
+</div>
+<div class="paragraph">
+<p>Il existe 2 solutions pour distribuer ces composants aux clients tiers :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>donner aux clients un lien sur le réseau de contenu (<em>CDN content delivery network</em>), pour téléchargement, par exemple <a href="http://code.jquery.com/jquery-3.3.1.js" class="bare">http://code.jquery.com/jquery-3.3.1.js</a></p>
+</li>
+<li>
+<p>servir ces composants à partir du serveur web de l&#8217;application (communication HTTP entre le serveur HTTP de l&#8217;application et les clients), par exemple <a href="http://monapplication.com/js/jquery-3.3.1.js" class="bare">http://monapplication.com/js/jquery-3.3.1.js</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Dans le cadre d&#8217;une application à faible diffusion, la deuxième solution peut être envisagée, de plus elle a le mérite d&#8217;assurer la disponibilité des composants (si l&#8217;application est disponible, alors ses composants le sont aussi), et, accessoirement, permet au développeur de travailler hors ligne.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="webjars-une-solution-java"><a class="anchor" href="#webjars-une-solution-java"></a>webjars - une solution java</h3>
+<div class="paragraph">
+<p>Nous nous placons dans le cas où c&#8217;est l&#8217;application qui héberge les composants dont auront besoin ses tiers clients.</p>
+</div>
+<div class="paragraph">
+<p>Initialement, l&#8217;application devra donc les obtenir (elle utilisera CDN pour l&#8217;occasion). Elle pourrait pour cela utiliser des gestionnaires de version spécilisés comme <em>npm</em>, <em>yarn</em>, <em>bower</em>&#8230;&#8203;),
+mais il serait dommage de ne pas profiter du gestionnaire de version <em>maven</em> ! C&#8217;est ce que permet la solution <a href="http://www.webjars.org/">webjars</a>, qui encapsule les composants client dans un jar. Tout cela se passe côté serveur bien entendu.</p>
+</div>
+<div class="paragraph">
+<p>Les WebJars sont des librairies à destination des clients-web (par exemple jQuery &amp; Bootstrap), packagées dans un fichier JAR (Java Archive), et disponible via divers gestionnaires d&#8217;automatisation de taches, comme <em>maven</em> par exemple.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://www.webjars.org/documentation" class="bare">https://www.webjars.org/documentation</a></p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="images/webjars-bt.png" alt="webjars-bt"></span></p>
+</div>
+<div class="paragraph">
+<p>La définition de la dépendance devra être copiée dans le fichier <strong>pom.xml</strong> du projet. C&#8217;est à partir de cette référence que <strong>maven</strong> téléchargera dans son dépot local les fichiers en question, et rendra accessibles ces fichiers en les plaçant dans le <em>CLASSPATH</em> du projet (ce qui les rendra accessible à l&#8217;IDE).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="webjars-cas-bootstrap"><a class="anchor" href="#webjars-cas-bootstrap"></a>webjars - cas bootstrap</h3>
+<div class="listingblock">
+<div class="title">Listing 13. pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml">  [...]
+
+ <span class="tag">&lt;dependency&gt;</span>
+   <span class="tag">&lt;groupId&gt;</span>org.webjars<span class="tag">&lt;/groupId&gt;</span>
+   <span class="tag">&lt;artifactId&gt;</span>bootstrap<span class="tag">&lt;/artifactId&gt;</span>
+   <span class="tag">&lt;version&gt;</span>4.1.3<span class="tag">&lt;/version&gt;</span>
+ <span class="tag">&lt;/dependency&gt;</span>
+
+ <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.webjars/jquery --&gt;</span>
+ <span class="tag">&lt;dependency&gt;</span>
+   <span class="tag">&lt;groupId&gt;</span>org.webjars<span class="tag">&lt;/groupId&gt;</span>
+   <span class="tag">&lt;artifactId&gt;</span>jquery<span class="tag">&lt;/artifactId&gt;</span>
+   <span class="tag">&lt;version&gt;</span>3.3.1-1<span class="tag">&lt;/version&gt;</span>
+ <span class="tag">&lt;/dependency&gt;</span>
+
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ces déclarations de dépendances, lorsqu&#8217;elle seront évaluées par <em>maven</em>, provoqueront le
+rapatriement, sur la machine hôte, des ressources inscrites dans le <em>webjars</em>.
+Ces ressources seront alors accessibles au projet, via l&#8217;IDE, au même titre que des librairies java.</p>
+</div>
+<div class="paragraph">
+<p>Le développeur pourra donc y faire références à la conception des vues.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="layout-cas-thymeleaf"><a class="anchor" href="#layout-cas-thymeleaf"></a>layout - cas thymeleaf</h3>
+<div class="paragraph">
+<p>Avec <em>thymeleaf</em>, la conception d&#8217;un modèle de présentation (<strong>layout</strong> ou <strong>template</strong>)
+est basée sur la décomposition du modèle en <strong>fragments</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Voici une organisation typique de ressources liées à la logique de présentation:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>├── application.properties
+├── static
+│   └── css
+│       └── main.css <i class="conum" data-value="1"></i><b>(1)</b>
+└── templates
+    ├── admin <i class="conum" data-value="2"></i><b>(2)</b>
+    │   └── index.html <i class="conum" data-value="3"></i><b>(3)</b>
+    ├── error
+    │   └── 403.html
+    ...
+    ├── fragments
+    │   ├── footer.html <i class="conum" data-value="4"></i><b>(4)</b>
+    │   └── header.html
+    └─ index.html</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>pour la redéfinition de règles héritées, propre à l&#8217;application</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>en référence au rôle utilisateur prioritairement concerné (ici un <code>admin</code>)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>les vues des controleurs sont placées dans un dossier portant le nom racine d&#8217;un contrôleur (AdminController)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>les fichiers déclarant des <strong>fragments</strong> (parties réutilisées par les vues) sont logés dans le dossier <em>fragments</em></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Les différentes pages partagent toutes les mêmes parties <code>header</code> (parties &lt;head&gt; et menu) et <code>footer</code>.</p>
+</div>
+<div class="paragraph">
+<p>Voici un exemple d&#8217;utilisation :</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 14. admin/index.html</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="doctype">&lt;!DOCTYPE HTML&gt;</span>
+<span class="tag">&lt;html</span> <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Page Admin<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: header-css (title='Admin')</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/header :: header</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+
+<span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+     <span class="tag">&lt;h1&gt;</span>Admin index<span class="tag">&lt;/h1&gt;</span>
+
+<span class="tag">&lt;/div&gt;</span>
+<span class="comment">&lt;!-- /.container --&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attribute-name">th:replace</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">fragments/footer:: footer</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>insertion du fragment <em>header-css</em> (définit dans le fichier <em>header.html</em>)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>insertion du fragment <em>header</em> (définit dans le fichier <em>header.html</em>)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>insertion du fragment <em>footer</em> (définit dans le fichier <em>footer.html</em>)</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Voyons maintenant des exemples de composants <em>fragment</em></p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 15. footer.html</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;html</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/1999/xhtml</span><span class="delimiter">&quot;</span></span>
+      <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span>
+      <span class="attribute-name">xmlns:sec</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org/thymeleaf-extras-springsecurity4</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">footer</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;footer&gt;</span>
+        <span class="entity">&amp;copy;</span> 2021 myapplication.com
+    <span class="tag">&lt;/footer&gt;</span>
+
+    <span class="tag">&lt;script</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/javascript</span><span class="delimiter">&quot;</span></span>
+            <span class="attribute-name">src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/bootstrap/4.1.3/js/bootstrap.min.js</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+            <span class="attribute-name">th:src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/bootstrap/4.1.3/js/bootstrap.min.js}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="inline">    </span><span class="tag">&lt;/script&gt;</span>
+
+    <span class="tag">&lt;script</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/javascript</span><span class="delimiter">&quot;</span></span>
+            <span class="attribute-name">src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/jquery/3.3.1-1/jquery.min.js</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="inline">            th:src=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/jquery/3.3.1-1/jquery.min.js}</span><span class="delimiter">&quot;</span></span></span>
+            <span class="tag">&lt;/script&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Un composant est en fait le body d&#8217;une page HTML particulière, comportant une déclaration de fragment.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Ceci est un exemple (la doc thymleaf parle de <em>prototype</em>). Sous IntelliJ, pensez à utiliser la complétion automatique (ctrl+ esp) pour l&#8217;expression de chemin.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>C&#8217;est la valeur <em>src</em> qui sera appliquée. Les expressions thymleaf de chemin ou de lien sont encadrées  par <code>@{ &#8230;&#8203; }</code>.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Listing 16. header.html</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;html</span> <span class="attribute-name">xmlns:th</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.thymeleaf.org</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+   <span class="tag">&lt;th:block</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">header-css</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+      <span class="tag">&lt;link</span> <span class="attribute-name">rel</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">stylesheet</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">text/css</span><span class="delimiter">&quot;</span></span>
+        <span class="attribute-name">href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/webjars/bootstrap/4.1.3/css/bootstrap.min.css</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/webjars/bootstrap/4.1.3/css/bootstrap.min.css}</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+      <span class="tag">&lt;link</span> <span class="attribute-name">rel</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">stylesheet</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/css/main.css}</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span class="attribute-name">href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">../static/css/main.css</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
+
+      <span class="tag">&lt;title</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${title ?: 'Default title'}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/title&gt;</span> <i class="conum" data-value="5"></i><b>(5)</b>
+
+   <span class="tag">&lt;/th:block&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute-name">th:fragment</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">header</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+    <span class="tag">&lt;nav</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar navbar-inverse</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar-header</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                <span class="tag">&lt;a</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar-brand</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Spring Boot<span class="tag">&lt;/a&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">navbar</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">collapse navbar-collapse</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                <span class="tag">&lt;ul</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">nav navbar-nav</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;li</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">active</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;a</span> <span class="attribute-name">th:href</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">@{/}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Home<span class="tag">&lt;/a&gt;</span><span class="tag">&lt;/li&gt;</span>
+                <span class="tag">&lt;/ul&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/nav&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>déclaration d&#8217;un fragment nommé <em>header-css</em></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>prototype de lien bootstrap</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>expression du lien th:href</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>le fichier CSS pour les redéfinitions propres à l&#8217;application (ne pas faire référence au dossier <code>static</code>)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>définition de la valeur de <code>&lt;title&gt;</code> avec valeur par défaut (opérateur elvis)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>déclaration d&#8217;un autre fragment dans le même fichier</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="controleur"><a class="anchor" href="#controleur"></a>Controleur</h3>
+<div class="paragraph">
+<p>Voici un exemple de mise en oeuvre, à minima :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"> <span class="comment">// AdminController</span>
+
+  <span class="annotation">@GetMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/admin</span><span class="delimiter">&quot;</span></span>)
+  <span class="directive">public</span> <span class="predefined-type">String</span> admin() {
+     <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">/admin/index</span><span class="delimiter">&quot;</span></span>;
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Nous avons ici rangé les vues dans des dossiers
+portant le nom du rôle prioritairement concerné, un parti pris.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="documentation"><a class="anchor" href="#documentation"></a>Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Documentation générale :  <a href="https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html">thymeleaf documenataion</a></p>
+</li>
+<li>
+<p>Ne pas passer à côté des classes utilitaires : <a href="https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects">classes utilitaires - avec exemples</a></p>
+</li>
+<li>
+<p>Différentes façons d&#8217;inclure un fragment : <a href="http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#including-template-fragments">thymeleaf:insclusion de fragments</a></p>
+</li>
+<li>
+<p>Paramétrer un fragment : <a href="http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#parameterizable-fragment-signatures">fragment paramétré</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="internationalisation"><a class="anchor" href="#internationalisation"></a>Internationalisation</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="présentation-4"><a class="anchor" href="#présentation-4"></a>Présentation</h3>
+<div class="paragraph">
+<p>Dans un monde où l&#8217;interconnexion ne connait, bien souvent, aucune frontière,
+il est opportun, pour une application web à large public, de pouvoir
+adapter son IHM à la langue de ses utilisateurs.</p>
+</div>
+<div class="paragraph">
+<p>Les frameworks sont généralement outillés pour cela, est la solution s&#8217;intitule <code>internationalisation</code>,
+terme un peu long à écrire (18 caratères), c&#8217;est pour cela qu&#8217;il est
+le plus souvent noté <code>i18n</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="identification-de-la-langue-de-l-utilisateur"><a class="anchor" href="#identification-de-la-langue-de-l-utilisateur"></a>Identification de la langue de l&#8217;utilisateur</h3>
+<div class="paragraph">
+<p>Rappelons-le, l&#8217;utilisateur sollicite un service d&#8217;une application web par le biais d&#8217;une requête HTTP.
+Cette dernière embarque dans son entête certaines données (implicitement) telles que des informations
+sur le navigateur du client et sa langue (<code>Accept-Language</code>) :</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="images/http-request-lang.png" alt="http-request-lang"></span></p>
+</div>
+<div class="paragraph">
+<p>La valeur de <code>Accept-Language</code> du client HTTP peut être exploitée par les applications web
+afin d&#8217;adapter le texte de la réponse à la langue
+de l&#8217;utilisateur.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="externalisation-des-messages"><a class="anchor" href="#externalisation-des-messages"></a>Externalisation des messages</h3>
+<div class="paragraph">
+<p>On entend par message tout texte destiné à être présenté à l&#8217;utilisateur.</p>
+</div>
+<div class="paragraph">
+<p>Exemple de message non internationalisé :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html">  <span class="tag">&lt;label</span> <span class="attribute-name">th:for</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${product.name}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Nom du produit :<span class="tag">&lt;/label&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Le même exemple i18n :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html">  <span class="tag">&lt;label</span> <span class="attribute-name">th:for</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${product.name}</span><span class="delimiter">&quot;</span></span>
+         <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{product.name}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Nom du produit<span class="tag">&lt;/label&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Le contenu textuel du label (<code>Nom du produit</code>) dans cet exemple i18n n&#8217;est là que pour
+documenter le code source : il sera remplacé par la <strong>valeur</strong> associée à la <strong>clé</strong> <code>product.name</code> présente
+dans un fichier de ressource sélectionné par Spring (à défaut, c&#8217;est la clé elle-même qui sera rendue).
+Observez la syntaxe d&#8217;un message i18n avec thymeleaf : <code>#{clé}</code></p>
+</div>
+<div class="paragraph">
+<p>Pour disposer d&#8217;une telle ressource, il suffit de créer un fichier <code>messages.properties</code>
+et autant d&#8217;autres fichiers <code>.properties</code> qu&#8217;il y a de langues couvertes par l&#8217;application,
+à partir du dossier <code>src/main/resources</code>. Exemple :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>|-- pom.xml
+|-- src
+|   |-- main
+|   |   |-- java
+|   |   |   `...
+|   |   `-- resources
+|   |       |-- application.properties
+|   |       |-- i18n
+|   |       |   |-- messages.properties
+|   |       |   |-- messages_fr.properties
+|   |       |   |-- messages_us.properties
+|   |       |   |-- validationMessages.properties
+|   |       |   |-- validationMessages_fr.properties
+|   |       |   `-- validationMessages_us.properties
+|   |       |-- static
+|   |       |   |-- css
+|   |       |   |   |-- cinema.css
+|   |       |   |   `-- jumbotron.css
+|   |       |   `-- favicon.ico
+|   |       `-- templates
+|   |           |...
+|   |
+|   `...</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+par défaut, <code>messages.properties</code> est attendu à la racine du dossier <code>resources</code>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Exemple de messages traduits :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># messages.properties
+site.title=My cinema
+reservationConfirmation=We have processed your reservation - thank you</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># messages_fr.properties
+site.title=Mon cinema
+reservationConfirmation=Nous avons précédé à votre réservation - merci</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuration-des-chemins-de-messages"><a class="anchor" href="#configuration-des-chemins-de-messages"></a>Configuration des chemins de messages</h3>
+<div class="paragraph">
+<p>Le dossier racine des messages, ainsi que leur préfixe, peuvent être paramétrés.
+Dans le but de centraliser les instructions de configurations, nous créons une classe
+dédiée qui expose des beans de configuration.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">fr.laerce.cinema.config</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.context.MessageSource</span>;
+<span class="keyword">import</span> <span class="include">org.springframework.context.annotation.Bean</span>;
+<span class="keyword">import</span> <span class="include">org.springframework.context.annotation.Configuration</span>;
+<span class="keyword">import</span> <span class="include">java.util.Locale</span>;
+
+<span class="annotation">@Configuration</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">InternationalizationConfig</span> <span class="directive">extends</span> WebMvcConfigurerAdapter {
+
+  <span class="comment">/**
+   * This is where we'll add the interceptor object
+   * that handles internationalization
+   */</span>
+  <span class="annotation">@Override</span>
+  <span class="directive">public</span> <span class="type">void</span> addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(localeChangeInterceptor());
+  }
+
+  <span class="comment">/**
+   * Set encoding and prefix file name of messages resources
+   * @return
+   */</span>
+  <span class="annotation">@Bean</span>
+  <span class="directive">public</span> MessageSource messageSource() {
+    ReloadableResourceBundleMessageSource messageSource =
+      <span class="keyword">new</span> ReloadableResourceBundleMessageSource();
+    messageSource.setBasename(<span class="string"><span class="delimiter">&quot;</span><span class="content">classpath:/i18n/messages</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="1"></i><b>(1)</b>
+    messageSource.setDefaultEncoding(<span class="string"><span class="delimiter">&quot;</span><span class="content">UTF-8</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="keyword">return</span> messageSource;
+  }
+
+  <span class="directive">private</span> MessageSource messageSourceValidator() {
+    ReloadableResourceBundleMessageSource messageSource =
+      <span class="keyword">new</span> ReloadableResourceBundleMessageSource();
+    messageSource.setBasename(<span class="string"><span class="delimiter">&quot;</span><span class="content">classpath:/i18n/validationMessages</span><span class="delimiter">&quot;</span></span>);
+    messageSource.setDefaultEncoding(<span class="string"><span class="delimiter">&quot;</span><span class="content">UTF-8</span><span class="delimiter">&quot;</span></span>);
+    <span class="keyword">return</span> messageSource;
+  }
+
+  <span class="annotation">@Bean</span>
+  <span class="directive">public</span> LocalValidatorFactoryBean validator() {
+    LocalValidatorFactoryBean bean = <span class="keyword">new</span> LocalValidatorFactoryBean();
+    bean.setValidationMessageSource(messageSourceValidator());
+    <span class="keyword">return</span> bean;
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Définit le sous-dossier et le préfixe des fichiers de messages (<code>messages</code> est le préfixe par défaut)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Encoder les messages en UTF-8 (attention à sélectionner également UTF-8 comme encodage par défaut des
+fichiers dans votre éditeur)</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées
+par l&#8217;application. Dans ce cas on configure le resolver de message afin de lui permettre
+de sélectionner un fichier de langue sur la base d&#8217;un paramètre (par convention c&#8217;est
+la variable <code>lang</code> qui est définie).</p>
+</div>
+<div class="paragraph">
+<p>On ajoutera à la classe <code>InternationalizationConfig</code> les beans de configuration suivants :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">  <span class="comment">/**
+   * Instantiate the appropriate locale resolution strategy
+   *
+   * @return locale resolver
+   */</span>
+  <span class="annotation">@Bean</span>
+  <span class="directive">public</span> LocaleResolver localeResolver() {
+    <span class="comment">// stores locale info in the session</span>
+    SessionLocaleResolver resolver = <span class="keyword">new</span> SessionLocaleResolver();
+
+    <span class="comment">//default to US locale</span>
+    resolver.setDefaultLocale(<span class="predefined-type">Locale</span>.US);
+
+    <span class="keyword">return</span> resolver;
+  }
+
+
+  <span class="comment">/**
+   * This interceptor allows visitors to change the locale
+   *
+   * @return a LocaleChangeInterceptor object
+   */</span>
+  <span class="annotation">@Bean</span>
+  <span class="directive">public</span> LocaleChangeInterceptor localeChangeInterceptor() {
+    LocaleChangeInterceptor interceptor = <span class="keyword">new</span> LocaleChangeInterceptor();
+
+    <span class="comment">//the request param that we'll use to determine the locale</span>
+    interceptor.setParamName(<span class="string"><span class="delimiter">&quot;</span><span class="content">lang</span><span class="delimiter">&quot;</span></span>);
+
+    <span class="keyword">return</span> interceptor;
+  }
+
+
+  <span class="comment">/**
+   * This is where we'll add the interceptor object
+   * that handles internationalization
+   */</span>
+  <span class="annotation">@Override</span>
+  <span class="directive">public</span> <span class="type">void</span> addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(localeChangeInterceptor());
+  }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="détection-et-changement-de-langue"><a class="anchor" href="#détection-et-changement-de-langue"></a>Détection et changement de langue</h3>
+<div class="paragraph">
+<p>Nous avons vu que le choix de la langue (du fichier des messages) dépend de la configuration
+de l&#8217;application, dans les cas les plus courants ce choix est basé sur :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>valeur de <code>Accept-Language</code> de l&#8217;entête HTTP (traitement
+par défaut, basé sur la configuration du client)</p>
+</li>
+<li>
+<p>valeur de la variable <code>lang</code> (une valeur par défaut est définie côté serveur)</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Le fichier <code>messages.properties</code> est celui qui sera utilisé en cas d&#8217;absence de fichier de traduction de la langue demandée.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="format-des-messages"><a class="anchor" href="#format-des-messages"></a>Format des messages</h3>
+<div class="paragraph">
+<p>Le format des messages est celui attendu
+par l' <a href="https://docs.oracle.com/javase/10/docs/api/java/text/MessageFormat.html">API MessageFormat</a>.
+Ce sont des chaînes de caractères pouvant être paramétrées :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="comment">// src/main/resources/i18n/messages.properties</span>
+
+info.category.products =The category <span class="error">\</span><span class="string"><span class="delimiter">&quot;</span><span class="content">{1}</span><span class="char">\&quot;</span><span class="content"> contains {0} product(s)</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exemple d&#8217;un cas d&#8217;utilisation :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html">// src/main/resources/templates/index/index.html
+
+  <span class="tag">&lt;h1</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{info.category.products(1234, 'sport')}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/h1&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Qui produira la sortie suivante :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html">  <span class="tag">&lt;h1&gt;</span>The category &quot;sport&quot; contains 1234 product(s)<span class="tag">&lt;/h1&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Plus vraisemblablement, le code aura une portée plus générale, comme ici :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html">  <span class="tag">&lt;h1</span> <span class="attribute-name">th:text</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#{info.category.products(${#lists.size(cat)}, ${cat.name})}</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/h1&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<code>#lists.size</code> est une des méthodes bien pratique des objets <em>helper</em> de thymeleaf. Ces objets gèrent les types de base (<code>String</code>, <code>List</code>, <code>Set</code>, etc.).
+Par exemple : <code>${#objects.nullSafe(obj,default)}</code>, mais aussi <code>URL</code>, <code>Message</code>&#8230;&#8203;.
+  <a href="https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects">voir la liste des helpers</a>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="messages-en-dehors-de-thymeleaf"><a class="anchor" href="#messages-en-dehors-de-thymeleaf"></a>Messages en dehors de thymeleaf</h3>
+<div class="paragraph">
+<p>Bien entendu, le développeur fera usage des messages i18n
+sur l&#8217;ensemble de son projet, et pas seulement directement sur les vues.</p>
+</div>
+<div class="paragraph">
+<p>En effet, le système de validation fait un usage intensif de messages i18n.</p>
+</div>
+<div class="sect3">
+<h4 id="dans-la-définition-d-une-annotation"><a class="anchor" href="#dans-la-définition-d-une-annotation"></a>Dans la définition d&#8217;une annotation</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Target</span>({ <span class="predefined-type">ElementType</span>.TYPE})
+<span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+<span class="annotation">@Constraint</span>(validatedBy = PersonConstraintValidator.class)
+<span class="annotation">@Documented</span>
+<span class="directive">public</span> <span class="annotation">@interface</span> PersonValidated {
+  <span class="predefined-type">String</span> message() <span class="keyword">default</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">{person.bean.invalid}</span><span class="delimiter">&quot;</span></span>;
+  ...</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="dans-une-classe-de-validation"><a class="anchor" href="#dans-une-classe-de-validation"></a>Dans une classe de validation</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">void</span> validate(<span class="predefined-type">Object</span> obj, Errors e) {
+
+  Person p = (Person) obj;
+  <span class="comment">// senior must have 2 adresses or more.</span>
+  <span class="keyword">if</span> (p.getAge() &gt; <span class="integer">80</span> &amp;&amp; p.getAddresses().size() &lt; <span class="integer">2</span>) {
+    e.rejectValue(<span class="string"><span class="delimiter">&quot;</span><span class="content">addresses</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">more.one.addresse.senior.citizen</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">constraint senior addresses</span><span class="delimiter">&quot;</span></span>);
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="dans-un-objet-métier"><a class="anchor" href="#dans-un-objet-métier"></a>Dans un objet métier</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">Person</span>{
+...
+  <span class="annotation">@Email</span>(message = <span class="string"><span class="delimiter">&quot;</span><span class="content">{email_invalid_error_message}</span><span class="delimiter">&quot;</span></span>)
+  <span class="annotation">@NotNull</span>(message = <span class="string"><span class="delimiter">&quot;</span><span class="content">{email_blank_error_essage}</span><span class="delimiter">&quot;</span></span>)
+  <span class="annotation">@Column</span>(unique = <span class="predefined-constant">true</span>, nullable = <span class="predefined-constant">false</span>)
+  <span class="directive">private</span> <span class="predefined-type">String</span> primaryEmail;
+...
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="conlusion"><a class="anchor" href="#conlusion"></a>Conlusion</h3>
+<div class="paragraph">
+<p>TODO</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validation"><a class="anchor" href="#validation"></a>Validation</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="présentation-5"><a class="anchor" href="#présentation-5"></a>Présentation</h3>
 <div class="paragraph">
 <p>Le contrôle de validité des <strong>données d&#8217;entrée</strong> est une tache incontrournable en développement web. On ne saurait être trop prudent car on ne peut supposer les intentions à l&#8217;origine d&#8217;une requête HTTP.</p>
 </div>
@@ -716,21 +2724,14 @@ des convertisseurs.</p>
 4
 5
 6
-7
-8
-9
-10
 </pre></td>
   <td class="code"><pre>
-[...]
-
 <span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
  <span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@ModelAttribute</span> FormPerson person){
    <span class="comment">// ...</span>
    <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
  }
-
-[...]</pre></td>
+</pre></td>
 </tr></table></code></pre>
 </div>
 </div>
@@ -808,13 +2809,8 @@ Pour ce faire, deux déclarations sont attendues :</p>
 7
 8
 9
-10
-11
-12
 </pre></td>
   <td class="code"><pre>
-[...]
-
 <span class="annotation">@PostMapping</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/add</span><span class="delimiter">&quot;</span></span>)
  <span class="directive">public</span> <span class="predefined-type">String</span> submit(<span class="annotation">@Valid</span> <span class="annotation">@ModelAttribute</span> Person person, BindingResult result){
    <span class="keyword">if</span> (result.hasErrors()) {
@@ -823,7 +2819,7 @@ Pour ce faire, deux déclarations sont attendues :</p>
    <span class="comment">// ...</span>
    <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">redirect:/person/list</span><span class="delimiter">&quot;</span></span>;
  }
-[...]</pre></td>
+</pre></td>
 </tr></table></code></pre>
 </div>
 </div>
@@ -1541,7 +3537,7 @@ public <span class="type">class</span> <span class="class">PersonConstraintValid
 <div id="footer">
 <div id="footer-text">
 Version 1.2<br>
-Last updated 2021-06-05 10:06:06 CEST
+Last updated 2022-01-14 11:02:44 CET
 </div>
 </div>
 </body>
