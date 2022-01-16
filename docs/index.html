@@ -2345,13 +2345,10 @@ fichiers dans votre éditeur)</td>
 </table>
 </div>
 <div class="paragraph">
-<p>Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées
-par l&#8217;application. Dans ce cas on configure le resolver de message afin de lui permettre
-de sélectionner un fichier de langue sur la base d&#8217;un paramètre (par convention c&#8217;est
-la variable <code>lang</code> qui est définie).</p>
+<p>Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées par l&#8217;application. Dans ce cas on configure le resolver de message afin de lui permettre de sélectionner un fichier de langue sur la base d&#8217;un paramètre (par convention c&#8217;est la variable <code>lang</code> qui est définie).</p>
 </div>
 <div class="paragraph">
-<p>On ajoutera à la classe <code>InternationalizationConfig</code> les beans de configuration suivants :</p>
+<p>On ajoutera à la classe <code>InternationalizationConfig</code> les beans deconfiguration suivants :</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2513,7 +2510,7 @@ sur l&#8217;ensemble de son projet, et pas seulement directement sur les vues.</
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">void</span> validate(<span class="predefined-type">Object</span> obj, Errors e) {
 
-  Person p = (Person) obj;
+  PersonDto p = (PersonDto) obj;
   <span class="comment">// senior must have 2 adresses or more.</span>
   <span class="keyword">if</span> (p.getAge() &gt; <span class="integer">80</span> &amp;&amp; p.getAddresses().size() &lt; <span class="integer">2</span>) {
     e.rejectValue(<span class="string"><span class="delimiter">&quot;</span><span class="content">addresses</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">more.one.addresse.senior.citizen</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">constraint senior addresses</span><span class="delimiter">&quot;</span></span>);

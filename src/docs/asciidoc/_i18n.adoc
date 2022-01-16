@@ -168,12 +168,9 @@ public class InternationalizationConfig implements WebMvcConfigurer {
 fichiers dans votre éditeur)
 
 
-Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées
-par l'application. Dans ce cas on configure le resolver de message afin de lui permettre
-de sélectionner un fichier de langue sur la base d'un paramètre (par convention c'est
-la variable `lang` qui est définie).
+Il peut être pratique, pour un utilisateur, de sélectionner une des langues supportées par l'application. Dans ce cas on configure le resolver de message afin de lui permettre de sélectionner un fichier de langue sur la base d'un paramètre (par convention c'est la variable `lang` qui est définie).
 
-On ajoutera à la classe `InternationalizationConfig` les beans de configuration suivants :
+On ajoutera à la classe `InternationalizationConfig` les beans deconfiguration suivants :
 
 [source, java]
 ----
@@ -300,7 +297,7 @@ public @interface PersonValidated {
 ----
 public void validate(Object obj, Errors e) {
 
-  Person p = (Person) obj;
+  PersonDto p = (PersonDto) obj;
   // senior must have 2 adresses or more.
   if (p.getAge() > 80 && p.getAddresses().size() < 2) {
     e.rejectValue("addresses", "more.one.addresse.senior.citizen", "constraint senior addresses");
