@@ -120,7 +120,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Locale;
 
 @Configuration
-public class InternationalizationConfig extends WebMvcConfigurerAdapter {
+public class InternationalizationConfig implements WebMvcConfigurer {
 
   /**
    * This is where we'll add the interceptor object
@@ -308,20 +308,19 @@ public void validate(Object obj, Errors e) {
 }
 ----
 
-=== Dans un objet métier
+=== Dans un objet DTO
 
 [source, java]
 ----
-public class Person{
+public class PersonDto{
 ...
   @Email(message = "{email_invalid_error_message}")
   @NotNull(message = "{email_blank_error_essage}")
-  @Column(unique = true, nullable = false)
   private String primaryEmail;
 ...
 }
 ----
 
-== Conlusion
+== Conclusion
 
 TODO
